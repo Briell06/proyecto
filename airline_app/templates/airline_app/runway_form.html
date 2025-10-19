@@ -1,0 +1,78 @@
+{% extends "airline_app/base.html" %}
+{% block title %}
+  {% if object %}
+    Editar
+  {% else %}
+    Nueva
+  {% endif %}
+  Pista - AeroControl
+{% endblock title %}
+{% block content %}
+  <div class="max-w-2xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex items-center space-x-3">
+      <a href="{% url 'runway_list' %}"
+         class="text-gray-400 hover:text-cyan-400 transition">
+        <i class="fas fa-arrow-left text-xl"></i>
+      </a>
+      <h1 class="text-3xl font-bold text-gray-100">
+        <i class="fas fa-road mr-3 text-purple-400"></i>
+        {% if object %}
+          Editar
+        {% else %}
+          Nueva
+        {% endif %}
+        Pista
+      </h1>
+    </div>
+    <!-- Form -->
+    <div class="bg-dark-900 rounded-xl p-8 border border-dark-800">
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="bg-red-900/50 border border-red-700 text-red-200 px-4 py-3 rounded-lg">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <div>
+          <label class="block text-sm font-semibold text-gray-300 mb-2">
+            {{ form.name.label }}
+            <span class="text-red-400">*</span>
+          </label>
+          {{ form.name }}
+          {% if form.name.errors %}<p class="mt-1 text-sm text-red-400">{{ form.name.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-300 mb-2">
+            {{ form.runway_code.label }}
+            <span class="text-red-400">*</span>
+          </label>
+          {{ form.runway_code }}
+          {% if form.runway_code.errors %}<p class="mt-1 text-sm text-red-400">{{ form.runway_code.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-300 mb-2">
+            {{ form.length_meters.label }}
+            <span class="text-red-400">*</span>
+          </label>
+          {{ form.length_meters }}
+          {% if form.length_meters.errors %}
+            <p class="mt-1 text-sm text-red-400">{{ form.length_meters.errors.0 }}</p>
+          {% endif %}
+        </div>
+        <div class="flex items-center">
+          {{ form.is_active }}
+          <label class="ml-2 text-sm font-semibold text-gray-300">{{ form.is_active.label }}</label>
+        </div>
+        <div class="flex items-center space-x-4 pt-4">
+          <button type="submit"
+                  class="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+            <i class="fas fa-save mr-2"></i>Guardar
+          </button>
+          <a href="{% url 'runway_list' %}"
+             class="flex-1 bg-dark-800 hover:bg-dark-700 text-center py-3 rounded-lg text-gray-300 font-semibold transition">
+            <i class="fas fa-times mr-2"></i>Cancelar
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock content %}

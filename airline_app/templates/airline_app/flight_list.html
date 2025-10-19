@@ -1,0 +1,128 @@
+{% extends "airline_app/base.html" %}
+{% block title %}
+  Vuelos - AeroControl
+{% endblock title %}
+{% block content %}
+  <div class="space-y-6">
+    <div class="flex items-center justify-between">
+      <h1 class="text-3xl font-bold text-gray-100">
+        <i class="fas fa-plane-departure mr-3 text-cyan-400"></i>Vuelos
+      </h1>
+      <a href="{% url 'flight_create' %}"
+         class="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition card-hover"><i class="fas fa-plus mr-2"></i>Nuevo Vuelo</a>
+    </div>
+    <!-- Search Form -->
+    <div class="bg-dark-900 rounded-xl p-6 border border-dark-800">
+      <form method="get"
+            class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <input type="text"
+               name="flight_number"
+               value="{{ request.GET.flight_number }}"
+               placeholder="Número de vuelo"
+               class="bg-dark-800 border border-dark-700 text-gray-100 px-4 py-2 rounded-lg focus:border-cyan-400 focus:outline-none">
+        <input type="text"
+               name="origin"
+               value="{{ request.GET.origin }}"
+               placeholder="Origen"
+               class="bg-dark-800 border border-dark-700 text-gray-100 px-4 py-2 rounded-lg focus:border-cyan-400 focus:outline-none">
+        <input type="text"
+               name="destination"
+               value="{{ request.GET.destination }}"
+               placeholder="Destino"
+               class="bg-dark-800 border border-dark-700 text-gray-100 px-4 py-2 rounded-lg focus:border-cyan-400 focus:outline-none">
+        <select name="status"
+                class="bg-dark-800 border border-dark-700 text-gray-100 px-4 py-2 rounded-lg focus:border-cyan-400 focus:outline-none">
+          <option value="">Todos los estados</option>
+          <option value="SCHEDULED"
+                  {% if request.GET.status == 'SCHEDULED' %}selected{% endif %}>Programado</option>
+          <option value="IN_PROGRESS"
+                  {% if request.GET.status == 'IN_PROGRESS' %}selected{% endif %}>En Progreso</option>
+          <option value="COMPLETED"
+                  {% if request.GET.status == 'COMPLETED' %}selected{% endif %}>Completado</option>
+          <option value="CANCELLED"
+                  {% if request.GET.status == 'CANCELLED' %}selected{% endif %}>Cancelado</option>
+          <option value="DELAYED"
+                  {% if request.GET.status == 'DELAYED' %}selected{% endif %}>Retrasado</option>
+        </select>
+        <input type="date"
+               name="date_from"
+               value="{{ request.GET.date_from }}"
+               class="bg-dark-800 border border-dark-700 text-gray-100 px-4 py-2 rounded-lg focus:border-cyan-400 focus:outline-none">
+        <button type="submit"
+                class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg font-semibold transition">
+          <i class="fas fa-search mr-2"></i>Buscar
+        </button>
+      </form>
+    </div>
+    {% if flights %}
+      <div class="bg-dark-900 rounded-xl border border-dark-800 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-dark-800">
+              <tr>
+                <th class="text-left py-4 px-6 text-gray-300 font-semibold">Vuelo</th>
+                <th class="text-left py-4 px-6 text-gray-300 font-semibold">Ruta</th>
+                <th class="text-left py-4 px-6 text-gray-300 font-semibold">Salida</th>
+                <th class="text-left py-4 px-6 text-gray-300 font-semibold">Llegada</th>
+                <th class="text-left py-4 px-6 text-gray-300 font-semibold">Estado</th>
+                <th class="text-left py-4 px-6 text-gray-300 font-semibold">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for flight in flights %}
+                <tr class="border-b border-dark-800 hover:bg-dark-800 transition">
+                  <td class="py-4 px-6">
+                    <span class="font-bold text-cyan-400">{{ flight.flight_number }}</span>
+                  </td>
+                  <td class="py-4 px-6 text-gray-300">
+                    {{ flight.origin }} <i class="fas fa-arrow-right mx-2 text-cyan-400"></i> {{ flight.destination }}
+                  </td>
+                  <td class="py-4 px-6 text-gray-300">{{ flight.departure_time|date:"d/m/Y H:i" }}</td>
+                  <td class="py-4 px-6 text-gray-300">{{ flight.arrival_time|date:"d/m/Y H:i" }}</td>
+                  <td class="py-4 px-6">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold {% if flight.status == 'SCHEDULED' %}bg-blue-900/50 text-blue-300{% elif flight.status == 'IN_PROGRESS' %}bg-green-900/50 text-green-300{% elif flight.status == 'COMPLETED' %}bg-gray-700 text-gray-300{% elif flight.status == 'CANCELLED' %}bg-red-900/50 text-red-300{% else %}bg-yellow-900/50 text-yellow-300{% endif %}">
+                      {{ flight.get_status_display }}
+                    </span>
+                  </td>
+                  <td class="py-4 px-6">
+                    <div class="flex items-center space-x-2">
+                      <a href="{% url 'flight_detail' flight.pk %}"
+                         class="text-cyan-400 hover:text-cyan-300"><i class="fas fa-eye"></i></a>
+                      <a href="{% url 'flight_update' flight.pk %}"
+                         class="text-blue-400 hover:text-blue-300"><i class="fas fa-edit"></i></a>
+                      <a href="{% url 'flight_delete' flight.pk %}"
+                         class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></a>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% if is_paginated %}
+        <div class="flex justify-center">
+          <nav class="flex items-center space-x-2">
+            {% if page_obj.has_previous %}
+              <a href="?page={{ page_obj.previous_page_number }}"
+                 class="px-4 py-2 bg-dark-800 text-gray-300 rounded-lg hover:bg-dark-700 transition"><i class="fas fa-chevron-left"></i></a>
+            {% endif %}
+            <span class="px-4 py-2 bg-cyan-600 text-white rounded-lg font-semibold">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+              <a href="?page={{ page_obj.next_page_number }}"
+                 class="px-4 py-2 bg-dark-800 text-gray-300 rounded-lg hover:bg-dark-700 transition"><i class="fas fa-chevron-right"></i></a>
+            {% endif %}
+          </nav>
+        </div>
+      {% endif %}
+    {% else %}
+      <div class="bg-dark-900 rounded-xl p-12 border border-dark-800 text-center">
+        <i class="fas fa-plane-departure text-6xl text-gray-600 mb-4"></i>
+        <h3 class="text-xl font-bold text-gray-300 mb-2">No hay vuelos registrados</h3>
+        <p class="text-gray-400 mb-6">Crea tu primer vuelo para comenzar</p>
+        <a href="{% url 'flight_create' %}"
+           class="inline-block bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition"><i class="fas fa-plus mr-2"></i>Crear Primer Vuelo</a>
+      </div>
+    {% endif %}
+  </div>
+{% endblock content %}

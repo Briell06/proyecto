@@ -1,0 +1,82 @@
+{% extends "airline_app/base.html" %}
+{% block title %}
+    Aeronaves - AeroControl
+{% endblock title %}
+{% block content %}
+    <div class="space-y-6">
+        <div class="flex items-center justify-between">
+            <h1 class="text-3xl font-bold text-gray-100">
+                <i class="fas fa-plane mr-3 text-green-400"></i>Aeronaves
+            </h1>
+            <a href="{% url 'aircraft_create' %}"
+               class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-semibold transition card-hover"><i class="fas fa-plus mr-2"></i>Nueva Aeronave</a>
+        </div>
+        <div class="flex space-x-4">
+            <a href="?status=OPERATIONAL"
+               class="px-4 py-2 bg-dark-800 hover:bg-dark-700 text-gray-300 rounded-lg transition">Operacionales</a>
+            <a href="?status=MAINTENANCE"
+               class="px-4 py-2 bg-dark-800 hover:bg-dark-700 text-gray-300 rounded-lg transition">Mantenimiento</a>
+            <a href="{% url 'aircraft_list' %}"
+               class="px-4 py-2 bg-dark-800 hover:bg-dark-700 text-gray-300 rounded-lg transition">Todas</a>
+        </div>
+        {% if aircraft_list %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for aircraft in aircraft_list %}
+                    <div class="bg-dark-900 rounded-xl p-6 border border-dark-800 card-hover">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-plane text-xl text-white"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-100">{{ aircraft.registration_number }}</h3>
+                                    <p class="text-sm text-gray-400">{{ aircraft.manufacturer }} {{ aircraft.model }}</p>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold {% if aircraft.status == 'OPERATIONAL' %}bg-green-900/50 text-green-300{% elif aircraft.status == 'MAINTENANCE' %}bg-yellow-900/50 text-yellow-300{% else %}bg-red-900/50 text-red-300{% endif %}">{{ aircraft.get_status_display }}</span>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-gray-300 text-sm">
+                                <i class="fas fa-users w-5 text-cyan-400"></i><span>Capacidad: {{ aircraft.capacity }}</span>
+                            </div>
+                            <div class="flex items-center text-gray-300 text-sm">
+                                <i class="fas fa-calendar w-5 text-cyan-400"></i><span>Año: {{ aircraft.year_manufactured }}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 pt-4 border-t border-dark-800">
+                            <a href="{% url 'aircraft_detail' aircraft.pk %}"
+                               class="flex-1 bg-dark-800 hover:bg-dark-700 text-center py-2 rounded-lg text-cyan-400 font-medium transition"><i class="fas fa-eye mr-2"></i>Ver</a>
+                            <a href="{% url 'aircraft_update' aircraft.pk %}"
+                               class="flex-1 bg-dark-800 hover:bg-dark-700 text-center py-2 rounded-lg text-blue-400 font-medium transition"><i class="fas fa-edit mr-2"></i>Editar</a>
+                            <a href="{% url 'aircraft_delete' aircraft.pk %}"
+                               class="flex-1 bg-dark-800 hover:bg-red-900/50 text-center py-2 rounded-lg text-red-400 font-medium transition"><i class="fas fa-trash mr-2"></i>Eliminar</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            {% if is_paginated %}
+                <div class="flex justify-center mt-8">
+                    <nav class="flex items-center space-x-2">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}"
+                               class="px-4 py-2 bg-dark-800 text-gray-300 rounded-lg hover:bg-dark-700 transition"><i class="fas fa-chevron-left"></i></a>
+                        {% endif %}
+                        <span class="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}"
+                               class="px-4 py-2 bg-dark-800 text-gray-300 rounded-lg hover:bg-dark-700 transition"><i class="fas fa-chevron-right"></i></a>
+                        {% endif %}
+                    </nav>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="bg-dark-900 rounded-xl p-12 border border-dark-800 text-center">
+                <i class="fas fa-plane text-6xl text-gray-600 mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-300 mb-2">No hay aeronaves registradas</h3>
+                <p class="text-gray-400 mb-6">Crea tu primera aeronave para comenzar</p>
+                <a href="{% url 'aircraft_create' %}"
+                   class="inline-block bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-semibold transition"><i class="fas fa-plus mr-2"></i>Crear Aeronave</a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock content %}

@@ -1,0 +1,97 @@
+{% extends "airline_app/base.html" %}
+{% block title %}
+  {{ personnel.get_full_name }} - AeroControl
+{% endblock title %}
+{% block content %}
+  <div class="space-y-6">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <a href="{% url 'personnel_list' %}"
+           class="text-gray-400 hover:text-cyan-400 transition"><i class="fas fa-arrow-left text-xl"></i></a>
+        <h1 class="text-3xl font-bold text-gray-100">
+          <i class="fas fa-user-tie mr-3 text-yellow-400"></i>{{ personnel.get_full_name }}
+        </h1>
+      </div>
+      <div class="flex items-center space-x-3">
+        <a href="{% url 'personnel_update' personnel.pk %}"
+           class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition"><i class="fas fa-edit mr-2"></i>Editar</a><a href="{% url 'personnel_delete' personnel.pk %}"
+   class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition"><i class="fas fa-trash mr-2"></i>Eliminar</a>
+      </div>
+    </div>
+    <div class="bg-dark-900 rounded-xl p-6 border border-dark-800">
+      <h2 class="text-xl font-bold text-gray-100 mb-4">
+        <i class="fas fa-info-circle mr-2 text-cyan-400"></i>Información del Personal
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <p class="text-sm text-gray-400 mb-1">Nombre Completo</p>
+          <p class="text-lg font-semibold text-gray-100">{{ personnel.get_full_name }}</p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-400 mb-1">ID Empleado</p>
+          <p class="text-lg font-semibold text-gray-100">{{ personnel.employee_id }}</p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-400 mb-1">Tipo</p>
+          <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold {% if personnel.personnel_type == 'PILOT' %}bg-yellow-900/50 text-yellow-300{% else %}bg-orange-900/50 text-orange-300{% endif %}">{{ personnel.get_personnel_type_display }}</span>
+        </div>
+        <div>
+          <p class="text-sm text-gray-400 mb-1">Licencia</p>
+          <p class="text-lg font-semibold text-gray-100">{{ personnel.license_number }}</p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-400 mb-1">Experiencia</p>
+          <p class="text-lg font-semibold text-gray-100">{{ personnel.years_of_experience }} años</p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-400 mb-1">Estado</p>
+          <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold {% if personnel.is_active %}bg-green-900/50 text-green-300{% else %}bg-red-900/50 text-red-300{% endif %}">
+            {% if personnel.is_active %}
+              Activo
+            {% else %}
+              Inactivo
+            {% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="bg-dark-900 rounded-xl p-6 border border-dark-800">
+      <h2 class="text-xl font-bold text-gray-100 mb-4">
+        <i class="fas fa-plane-departure mr-2 text-cyan-400"></i>Vuelos Asignados
+      </h2>
+      {% if flights %}
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-dark-800">
+                <th class="text-left py-3 px-4 text-gray-400 font-semibold text-sm">Vuelo</th>
+                <th class="text-left py-3 px-4 text-gray-400 font-semibold text-sm">Ruta</th>
+                <th class="text-left py-3 px-4 text-gray-400 font-semibold text-sm">Salida</th>
+                <th class="text-left py-3 px-4 text-gray-400 font-semibold text-sm">Rol</th>
+                <th class="text-left py-3 px-4 text-gray-400 font-semibold text-sm">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for flight in flights %}
+                <tr class="border-b border-dark-800 hover:bg-dark-800 transition">
+                  <td class="py-3 px-4 font-semibold text-gray-100">{{ flight.flight_number }}</td>
+                  <td class="py-3 px-4 text-gray-300">{{ flight.origin }} → {{ flight.destination }}</td>
+                  <td class="py-3 px-4 text-gray-300">{{ flight.departure_time|date:"d/m/Y H:i" }}</td>
+                  <td class="py-3 px-4">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold {% if personnel.personnel_type == 'PILOT' %}bg-yellow-900/50 text-yellow-300{% else %}bg-orange-900/50 text-orange-300{% endif %}">{{ personnel.get_personnel_type_display }}</span>
+                  </td>
+                  <td class="py-3 px-4">
+                    <a href="{% url 'flight_detail' flight.pk %}"
+                       class="text-cyan-400 hover:text-cyan-300"><i class="fas fa-eye"></i></a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-gray-400 text-center py-8">No hay vuelos asignados a este personal</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock content %}

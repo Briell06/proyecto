@@ -1,0 +1,137 @@
+{% extends "airline_app/base.html" %}
+{% block title %}
+  {% if object %}
+    Editar
+  {% else %}
+    Nuevo
+  {% endif %}
+  Vuelo - AeroControl
+{% endblock title %}
+{% block content %}
+  <div class="max-w-4xl mx-auto space-y-6">
+    <div class="flex items-center space-x-3">
+      <a href="{% url 'flight_list' %}"
+         class="text-gray-400 hover:text-cyan-400 transition"><i class="fas fa-arrow-left text-xl"></i></a>
+      <h1 class="text-3xl font-bold text-gray-100">
+        <i class="fas fa-plane-departure mr-3 text-cyan-400"></i>
+        {% if object %}
+          Editar
+        {% else %}
+          Nuevo
+        {% endif %}
+        Vuelo
+      </h1>
+    </div>
+    <div class="bg-dark-900 rounded-xl p-8 border border-dark-800">
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="bg-red-900/50 border border-red-700 text-red-200 px-4 py-3 rounded-lg">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-semibold text-gray-300 mb-2">
+              {{ form.flight_number.label }} <span class="text-red-400">*</span>
+            </label>
+            {{ form.flight_number }}
+            {% if form.flight_number.errors %}
+              <p class="mt-1 text-sm text-red-400">{{ form.flight_number.errors.0 }}</p>
+            {% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-300 mb-2">
+              {{ form.status.label }} <span class="text-red-400">*</span>
+            </label>
+            {{ form.status }}
+            {% if form.status.errors %}<p class="mt-1 text-sm text-red-400">{{ form.status.errors.0 }}</p>{% endif %}
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-semibold text-gray-300 mb-2">
+              {{ form.origin.label }} <span class="text-red-400">*</span>
+            </label>
+            {{ form.origin }}
+            {% if form.origin.errors %}<p class="mt-1 text-sm text-red-400">{{ form.origin.errors.0 }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-300 mb-2">
+              {{ form.destination.label }} <span class="text-red-400">*</span>
+            </label>
+            {{ form.destination }}
+            {% if form.destination.errors %}<p class="mt-1 text-sm text-red-400">{{ form.destination.errors.0 }}</p>{% endif %}
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-semibold text-gray-300 mb-2">
+              {{ form.departure_time.label }} <span class="text-red-400">*</span>
+            </label>
+            {{ form.departure_time }}
+            {% if form.departure_time.errors %}
+              <p class="mt-1 text-sm text-red-400">{{ form.departure_time.errors.0 }}</p>
+            {% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-300 mb-2">
+              {{ form.arrival_time.label }} <span class="text-red-400">*</span>
+            </label>
+            {{ form.arrival_time }}
+            {% if form.arrival_time.errors %}<p class="mt-1 text-sm text-red-400">{{ form.arrival_time.errors.0 }}</p>{% endif %}
+          </div>
+        </div>
+        <div class="bg-dark-800 rounded-lg p-4 mb-4">
+          <h3 class="text-lg font-semibold text-cyan-400 mb-3">
+            <i class="fas fa-boxes mr-2"></i>Asignación de Recursos
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-semibold text-gray-300 mb-2">
+                {{ form.runway.label }} <span class="text-red-400">*</span>
+              </label>
+              {{ form.runway }}
+              {% if form.runway.errors %}<p class="mt-1 text-sm text-red-400">{{ form.runway.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-300 mb-2">
+                {{ form.gate.label }} <span class="text-red-400">*</span>
+              </label>
+              {{ form.gate }}
+              {% if form.gate.errors %}<p class="mt-1 text-sm text-red-400">{{ form.gate.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-300 mb-2">
+                {{ form.aircraft.label }} <span class="text-red-400">*</span>
+              </label>
+              {{ form.aircraft }}
+              {% if form.aircraft.errors %}<p class="mt-1 text-sm text-red-400">{{ form.aircraft.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-300 mb-2">
+                {{ form.pilot.label }} <span class="text-red-400">*</span>
+              </label>
+              {{ form.pilot }}
+              {% if form.pilot.errors %}<p class="mt-1 text-sm text-red-400">{{ form.pilot.errors.0 }}</p>{% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="bg-dark-800 rounded-lg p-4">
+          <h3 class="text-lg font-semibold text-yellow-400 mb-2">
+            <i class="fas fa-users mr-2"></i>Copilotos <span class="text-red-400">*</span>
+          </h3>
+          <p class="text-sm text-gray-400 mb-3">Requerimientos: ≤4h: 1 copiloto | 4-8h: 2 copilotos | >8h: 3 copilotos</p>
+          {{ form.copilots }}
+          {% if form.copilots.errors %}<p class="mt-1 text-sm text-red-400">{{ form.copilots.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="flex items-center space-x-4 pt-4">
+          <button type="submit"
+                  class="flex-1 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+            <i class="fas fa-save mr-2"></i>Guardar Vuelo
+          </button>
+          <a href="{% url 'flight_list' %}"
+             class="flex-1 bg-dark-800 hover:bg-dark-700 text-center py-3 rounded-lg text-gray-300 font-semibold transition"><i class="fas fa-times mr-2"></i>Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock content %}

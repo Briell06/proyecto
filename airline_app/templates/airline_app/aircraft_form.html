@@ -1,0 +1,98 @@
+{% extends "airline_app/base.html" %}
+{% block title %}
+  {% if object %}
+    Editar
+  {% else %}
+    Nueva
+  {% endif %}
+  Aeronave - AeroControl
+{% endblock title %}
+{% block content %}
+  <div class="max-w-2xl mx-auto space-y-6">
+    <div class="flex items-center space-x-3">
+      <a href="{% url 'aircraft_list' %}"
+         class="text-gray-400 hover:text-cyan-400 transition"><i class="fas fa-arrow-left text-xl"></i></a>
+      <h1 class="text-3xl font-bold text-gray-100">
+        <i class="fas fa-plane mr-3 text-green-400"></i>
+        {% if object %}
+          Editar
+        {% else %}
+          Nueva
+        {% endif %}
+        Aeronave
+      </h1>
+    </div>
+    <div class="bg-dark-900 rounded-xl p-8 border border-dark-800">
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+        <div>
+          <label class="block text-sm font-semibold text-gray-300 mb-2">
+            {{ form.registration_number.label }} <span class="text-red-400">*</span>
+          </label>
+          {{ form.registration_number }}
+          {% if form.registration_number.errors %}
+            <p class="mt-1 text-sm text-red-400">{{ form.registration_number.errors.0 }}</p>
+          {% endif %}
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-semibold text-gray-300 mb-2">
+              {{ form.manufacturer.label }} <span class="text-red-400">*</span>
+            </label>
+            {{ form.manufacturer }}
+            {% if form.manufacturer.errors %}<p class="mt-1 text-sm text-red-400">{{ form.manufacturer.errors.0 }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-300 mb-2">
+              {{ form.model.label }} <span class="text-red-400">*</span>
+            </label>
+            {{ form.model }}
+            {% if form.model.errors %}<p class="mt-1 text-sm text-red-400">{{ form.model.errors.0 }}</p>{% endif %}
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-semibold text-gray-300 mb-2">
+              {{ form.capacity.label }} <span class="text-red-400">*</span>
+            </label>
+            {{ form.capacity }}
+            {% if form.capacity.errors %}<p class="mt-1 text-sm text-red-400">{{ form.capacity.errors.0 }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-300 mb-2">
+              {{ form.year_manufactured.label }} <span class="text-red-400">*</span>
+            </label>
+            {{ form.year_manufactured }}
+            {% if form.year_manufactured.errors %}
+              <p class="mt-1 text-sm text-red-400">{{ form.year_manufactured.errors.0 }}</p>
+            {% endif %}
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-semibold text-gray-300 mb-2">
+              {{ form.status.label }} <span class="text-red-400">*</span>
+            </label>
+            {{ form.status }}
+            {% if form.status.errors %}<p class="mt-1 text-sm text-red-400">{{ form.status.errors.0 }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-300 mb-2">{{ form.last_maintenance_date.label }}</label>
+            {{ form.last_maintenance_date }}
+            {% if form.last_maintenance_date.errors %}
+              <p class="mt-1 text-sm text-red-400">{{ form.last_maintenance_date.errors.0 }}</p>
+            {% endif %}
+          </div>
+        </div>
+        <div class="flex items-center space-x-4 pt-4">
+          <button type="submit"
+                  class="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+            <i class="fas fa-save mr-2"></i>Guardar
+          </button>
+          <a href="{% url 'aircraft_list' %}"
+             class="flex-1 bg-dark-800 hover:bg-dark-700 text-center py-3 rounded-lg text-gray-300 font-semibold transition"><i class="fas fa-times mr-2"></i>Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock content %}
