@@ -23,7 +23,7 @@ Sistema Django para la coordinación de operaciones de vuelo, asignación de rec
 ### 1. Clonar repositorio
 
 ```bash
-git clone <https://github.com/Briell06/proyecto.git>
+git clone https://github.com/Briell06/proyecto.git
 cd "proyecto v2"
 ```
 
