@@ -7,8 +7,8 @@ from datetime import timedelta
 
 class Runway(models.Model):
     """
-    Represents a runway for aircraft takeoff and landing operations.
-    Each runway can only be used by one flight at a time.
+    Representa una pista para las operaciones de aterrizaje y despegue del aeropuerto.
+    Cada pista puede ser asignada a un vuelo a la vez.
     """
 
     name = models.CharField(max_length=100, unique=True, verbose_name="Nombre")
@@ -36,15 +36,15 @@ class Runway(models.Model):
 
     def is_available(self, start_time, end_time, exclude_flight_id=None):
         """
-        Check if runway is available for the given time interval.
+        Checkea si la pista está disponible para el marco de tiempo dado.
 
         Args:
-            start_time: Flight start datetime
-            end_time: Flight end datetime
-            exclude_flight_id: Optional flight ID to exclude from check (for updates)
+            start_time: Fecha de inicio
+            end_time: Fecha de fin
+            exclude_flight_id: ID de vuelo para excluir (para actualizaciones)
 
         Returns:
-            bool: True if available, False otherwise
+            bool: True si está disponible, False si no lo está
         """
         from django.db.models import Q
 
@@ -60,8 +60,8 @@ class Runway(models.Model):
 
 class Gate(models.Model):
     """
-    Represents a boarding gate where passengers board the aircraft.
-    Each gate can only be assigned to one flight at a time.
+    Representa una puerta de abordaje donde los pasajeros suben al avión.
+    Cada puerta puede ser asignada a un vuelo a la vez.
     """
 
     name = models.CharField(max_length=100, unique=True, verbose_name="Nombre")
@@ -83,15 +83,15 @@ class Gate(models.Model):
 
     def is_available(self, start_time, end_time, exclude_flight_id=None):
         """
-        Check if gate is available for the given time interval.
+        Checkea si la puerta de abordaje está disponible para el marco de tiempo dado.
 
         Args:
-            start_time: Flight start datetime
-            end_time: Flight end datetime
-            exclude_flight_id: Optional flight ID to exclude from check (for updates)
+            start_time: Fecha de inicio
+            end_time: Fecha de fin
+            exclude_flight_id: ID de vuelo para excluir (para actualizaciones)
 
         Returns:
-            bool: True if available, False otherwise
+            bool: True si está disponible, False si no lo está
         """
         from django.db.models import Q
 
@@ -107,8 +107,8 @@ class Gate(models.Model):
 
 class Personnel(models.Model):
     """
-    Represents airline personnel (pilots and co-pilots).
-    Each person can only be assigned to one flight at a time.
+    Representa el personal del aeropuerto (pilotos y copilotos).
+    Cada persona puede ser asignada a un vuelo a la vez.
     """
 
     PERSONNEL_TYPES = [
@@ -155,29 +155,28 @@ class Personnel(models.Model):
         return f"{self.get_personnel_type_display()} - {self.first_name} {self.last_name} ({self.employee_id})"
 
     def get_full_name(self):
-        """Returns the person's full name."""
         return f"{self.first_name} {self.last_name}"
 
     def is_available(self, start_time, end_time, exclude_flight_id=None):
         """
-        Check if personnel is available for the given time interval.
+        Checkea si el personal seleccionado está disponible para el marco de tiempo dado.
 
         Args:
-            start_time: Flight start datetime
-            end_time: Flight end datetime
-            exclude_flight_id: Optional flight ID to exclude from check (for updates)
+            start_time: Fecha de inicio
+            end_time: Fecha de fin
+            exclude_flight_id: ID de vuelo para excluir (para actualizaciones)
 
         Returns:
-            bool: True if available, False otherwise
+            bool: True si está disponible, False si no lo está
         """
         from django.db.models import Q
 
-        # Check flights where this person is assigned as pilot
+        # Checkea los vuelos donde este piloto está asignado
         pilot_flights = Flight.objects.filter(
             pilot=self, status__in=["SCHEDULED", "IN_PROGRESS"]
         ).filter(Q(departure_time__lt=end_time) & Q(arrival_time__gt=start_time))
 
-        # Check flights where this person is assigned as co-pilot
+        # Checkea los vuelos donde este copiloto está asignado
         copilot_flights = Flight.objects.filter(
             copilots=self, status__in=["SCHEDULED", "IN_PROGRESS"]
         ).filter(Q(departure_time__lt=end_time) & Q(arrival_time__gt=start_time))
@@ -191,8 +190,8 @@ class Personnel(models.Model):
 
 class Aircraft(models.Model):
     """
-    Represents an aircraft in the fleet.
-    Aircraft require 24 hours between flights for mandatory maintenance.
+    Representa los aviones del aeropuerto.
+    Los aviones requieren 24 horas de mantenimiento obligatorio entre vuelos [pequeño toque personal :)].
     """
 
     AIRCRAFT_STATUS = [
@@ -230,16 +229,15 @@ class Aircraft(models.Model):
 
     def is_available(self, start_time, end_time, exclude_flight_id=None):
         """
-        Check if aircraft is available for the given time interval.
-        Aircraft needs 24 hours between flights for maintenance.
+        Checkea si el avión está disponible para el marco de tiempo dado.
 
         Args:
-            start_time: Flight start datetime
-            end_time: Flight end datetime
-            exclude_flight_id: Optional flight ID to exclude from check (for updates)
+            start_time: Fecha de inicio
+            end_time: Fecha de fin
+            exclude_flight_id: ID de vuelo para excluir (para actualizaciones)
 
         Returns:
-            bool: True if available, False otherwise
+            bool: True si está disponible, False si no lo está
         """
         from django.db.models import Q
 
@@ -285,9 +283,9 @@ class Aircraft(models.Model):
 
 class Flight(models.Model):
     """
-    Represents a flight event that consumes multiple resources.
-    Each flight must have one of each resource type and proper crew assignment.
-    Validates time conflicts and resource availability constraints.
+    Representa el evento de "vuelo", evento principal del programa que consume los recursos asignados.
+    Cada vuelo tiene que tener asignado 1 recurso de cada tipo y el personal correspondiente en dependencia de la duración del vuelo.
+    Este modelo valida los conflictos de vuelos simultáneos y recursos asignados simultáneamente.
     """
 
     FLIGHT_STATUS = [
@@ -309,7 +307,7 @@ class Flight(models.Model):
         max_length=20, choices=FLIGHT_STATUS, default="SCHEDULED", verbose_name="Estado"
     )
 
-    # Resource assignments (one of each type required)
+    # Asignación de recursos (requerido que sea 1 de cada tipo)
     runway = models.ForeignKey(
         Runway, on_delete=models.PROTECT, related_name="flights", verbose_name="Pista"
     )
@@ -349,10 +347,10 @@ class Flight(models.Model):
 
     def get_duration(self):
         """
-        Calculate flight duration in hours.
+        Calcula la duración del vuelo en horas.
 
         Returns:
-            float: Duration in hours
+            float: Duración en horas
         """
         if self.departure_time and self.arrival_time:
             delta = self.arrival_time - self.departure_time
@@ -361,13 +359,13 @@ class Flight(models.Model):
 
     def get_required_copilots(self):
         """
-        Calculate the minimum number of co-pilots required based on flight duration.
-        - Flights up to 4 hours: 1 co-pilot
-        - Flights 4-8 hours: 2 co-pilots
-        - Flights over 8 hours: 3 co-pilots
+        Calcula la minima cantidad de copilotos requeridos en base a la duración del vuelo.
+        - Vuelos de hasta 4 horas: 1 copiloto
+        - Vuelos de 4-8 horas: 2 copilotos
+        - Vuelos de más de 8 horas: 3 copilotos
 
         Returns:
-            int: Minimum number of co-pilots required
+            int: mínima cantidad de copilotos requeridos
         """
         duration = self.get_duration()
         if duration <= 4:
@@ -379,13 +377,13 @@ class Flight(models.Model):
 
     def clean(self):
         """
-        Validate flight data and resource assignments.
-        Checks for time conflicts and constraint violations.
+        Valida los datos proporcionados para crear el vuelo y los recursos asignados.
+        Checkea los conflictos de tiempo y overlapping de recursos.
         """
         errors = {}
         duration = self.get_duration()
 
-        # Validate times
+        # Valida las fechas de salida y llegada
         if self.departure_time and self.arrival_time:
             if self.departure_time < timezone.now():
                 errors["departure_time"] = ValidationError(
@@ -411,19 +409,19 @@ class Flight(models.Model):
                     code="invalid_time_range",
                 )
 
-        if self.origin == self.destination:
+        if self.origin.lower() == self.destination.lower():
             errors["origin"] = ValidationError(
                 "El origen y el destino no pueden ser iguales.",
                 code="invalid_origin_destination",
             )
 
-        # Validate pilot is actually a pilot
+        # Valida que los pilotos sean pilotos
         if self.pilot and self.pilot.personnel_type != "PILOT":
             errors["pilot"] = ValidationError(
                 "El personal seleccionado debe ser un piloto.", code="invalid_pilot"
             )
 
-        # Check resource availability
+        # Checkea la disponibilidad de los recursos
         exclude_id = self.pk if self.pk else None
 
         if self.runway and not self.runway.is_available(
@@ -463,13 +461,11 @@ class Flight(models.Model):
 
     def validate_copilots(self):
         """
-        Validate that the flight has the required number of co-pilots
-        and that all co-pilots are available.
-        Must be called after the flight is saved and copilots are assigned.
+        Valida que el vuelo tenga la cantidad de copilotos requerida y valida que los copilotos estén disponibles en el rango de tiempo dado.
         """
         errors = []
 
-        # Check if we have the minimum required co-pilots
+        # verificar si tenemos la cantidad minima de copilotos asignados
         required = self.get_required_copilots()
         assigned = self.copilots.count()
 
@@ -481,7 +477,7 @@ class Flight(models.Model):
                 )
             )
 
-        # Validate each co-pilot
+        # Valida cada copiloto
         exclude_id = self.pk if self.pk else None
         for copilot in self.copilots.all():
             if copilot.personnel_type != "COPILOT":
@@ -506,35 +502,6 @@ class Flight(models.Model):
             raise ValidationError(errors)
 
     def save(self, *args, **kwargs):
-        """Override save to run validation before saving."""
+        """Corre una validación completa antes salvar los datos a la base de datos."""
         self.full_clean()
         super().save(*args, **kwargs)
-
-
-class ResourceConstraint(models.Model):
-    """
-    Defines co-requisite and mutual exclusion constraints between resources.
-    These rules ensure proper resource combinations in flights.
-    """
-
-    CONSTRAINT_TYPES = [
-        ("CO_REQUISITE", "Co-requisito"),
-        ("MUTUAL_EXCLUSION", "Exclusión Mutua"),
-    ]
-
-    name = models.CharField(max_length=200, verbose_name="Nombre")
-    constraint_type = models.CharField(
-        max_length=20, choices=CONSTRAINT_TYPES, verbose_name="Tipo de Restricción"
-    )
-    description = models.TextField(verbose_name="Descripción")
-    is_active = models.BooleanField(default=True, verbose_name="Activa")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = "Restricción de Recursos"
-        verbose_name_plural = "Restricciones de Recursos"
-        ordering = ["name"]
-
-    def __str__(self):
-        return f"{self.name} ({self.get_constraint_type_display()})"

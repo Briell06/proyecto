@@ -25,7 +25,7 @@ from .forms import (
 
 
 def home(request):
-    """Homepage with dashboard overview."""
+    """View que conecta al dashboard."""
     context = {
         "total_runways": Runway.objects.filter(is_active=True).count(),
         "total_gates": Gate.objects.filter(is_active=True).count(),
@@ -39,9 +39,9 @@ def home(request):
     return render(request, "airline_app/home.html", context)
 
 
-# Runway Views
+# Vistas pata trabajar con pistas
 class RunwayListView(ListView):
-    """Display list of all runways."""
+    """Listar pistas."""
 
     model = Runway
     template_name = "airline_app/runway_list.html"
@@ -51,7 +51,7 @@ class RunwayListView(ListView):
 
 
 class RunwayCreateView(CreateView):
-    """Create a new runway."""
+    """Crear pista."""
 
     model = Runway
     form_class = RunwayForm
@@ -64,7 +64,7 @@ class RunwayCreateView(CreateView):
 
 
 class RunwayUpdateView(UpdateView):
-    """Update an existing runway."""
+    """Actualizar una pista."""
 
     model = Runway
     form_class = RunwayForm
@@ -77,7 +77,7 @@ class RunwayUpdateView(UpdateView):
 
 
 class RunwayDeleteView(DeleteView):
-    """Delete a runway."""
+    """Borrar una pistas."""
 
     model = Runway
     template_name = "airline_app/runway_confirm_delete.html"
@@ -89,7 +89,7 @@ class RunwayDeleteView(DeleteView):
 
 
 class RunwayDetailView(DetailView):
-    """Display runway details and scheduled flights."""
+    """Detallar una pista."""
 
     model = Runway
     template_name = "airline_app/runway_detail.html"
@@ -103,9 +103,9 @@ class RunwayDetailView(DetailView):
         return context
 
 
-# Gate Views
+# Vistas de puertas de embargue
 class GateListView(ListView):
-    """Display list of all gates."""
+    """Listar todas las puertas de embargue."""
 
     model = Gate
     template_name = "airline_app/gate_list.html"
@@ -115,7 +115,7 @@ class GateListView(ListView):
 
 
 class GateCreateView(CreateView):
-    """Create a new gate."""
+    """Crear puertas de embargue."""
 
     model = Gate
     form_class = GateForm
@@ -128,7 +128,7 @@ class GateCreateView(CreateView):
 
 
 class GateUpdateView(UpdateView):
-    """Update an existing gate."""
+    """Actualizar una puerta de embargue."""
 
     model = Gate
     form_class = GateForm
@@ -141,7 +141,7 @@ class GateUpdateView(UpdateView):
 
 
 class GateDeleteView(DeleteView):
-    """Delete a gate."""
+    """Borrar una puerta de embargue."""
 
     model = Gate
     template_name = "airline_app/gate_confirm_delete.html"
@@ -153,7 +153,7 @@ class GateDeleteView(DeleteView):
 
 
 class GateDetailView(DetailView):
-    """Display gate details and scheduled flights."""
+    """Detallar una puerta de embargue."""
 
     model = Gate
     template_name = "airline_app/gate_detail.html"
@@ -167,9 +167,9 @@ class GateDetailView(DetailView):
         return context
 
 
-# Personnel Views
+# Vistas de personal
 class PersonnelListView(ListView):
-    """Display list of all personnel."""
+    """Listar el personal."""
 
     model = Personnel
     template_name = "airline_app/personnel_list.html"
@@ -186,7 +186,7 @@ class PersonnelListView(ListView):
 
 
 class PersonnelCreateView(CreateView):
-    """Create a new personnel."""
+    """Crear un miembro del personal."""
 
     model = Personnel
     form_class = PersonnelForm
@@ -199,7 +199,7 @@ class PersonnelCreateView(CreateView):
 
 
 class PersonnelUpdateView(UpdateView):
-    """Update an existing personnel."""
+    """Actualizar miembro del personal."""
 
     model = Personnel
     form_class = PersonnelForm
@@ -212,7 +212,7 @@ class PersonnelUpdateView(UpdateView):
 
 
 class PersonnelDeleteView(DeleteView):
-    """Delete a personnel."""
+    """Eliminar un miembro del personal."""
 
     model = Personnel
     template_name = "airline_app/personnel_confirm_delete.html"
@@ -224,7 +224,7 @@ class PersonnelDeleteView(DeleteView):
 
 
 class PersonnelDetailView(DetailView):
-    """Display personnel details and assigned flights."""
+    """Mostrar los detalles de un miembro del personal."""
 
     model = Personnel
     template_name = "airline_app/personnel_detail.html"
@@ -243,9 +243,9 @@ class PersonnelDetailView(DetailView):
         return context
 
 
-# Aircraft Views
+# Vistas de aviones
 class AircraftListView(ListView):
-    """Display list of all aircraft."""
+    """Mostrar la lista de aviones."""
 
     model = Aircraft
     template_name = "airline_app/aircraft_list.html"
@@ -262,7 +262,7 @@ class AircraftListView(ListView):
 
 
 class AircraftCreateView(CreateView):
-    """Create a new aircraft."""
+    """Crear un nuevo avión."""
 
     model = Aircraft
     form_class = AircraftForm
@@ -275,7 +275,7 @@ class AircraftCreateView(CreateView):
 
 
 class AircraftUpdateView(UpdateView):
-    """Update an existing aircraft."""
+    """Actualizar un nuevo avión."""
 
     model = Aircraft
     form_class = AircraftForm
@@ -288,7 +288,7 @@ class AircraftUpdateView(UpdateView):
 
 
 class AircraftDeleteView(DeleteView):
-    """Delete an aircraft."""
+    """Borrar un avión."""
 
     model = Aircraft
     template_name = "airline_app/aircraft_confirm_delete.html"
@@ -300,7 +300,7 @@ class AircraftDeleteView(DeleteView):
 
 
 class AircraftDetailView(DetailView):
-    """Display aircraft details and scheduled flights."""
+    """Detallar un avión."""
 
     model = Aircraft
     template_name = "airline_app/aircraft_detail.html"
@@ -314,9 +314,9 @@ class AircraftDetailView(DetailView):
         return context
 
 
-# Flight Views
+# Vistas de Vuelos
 class FlightListView(ListView):
-    """Display list of all flights with search functionality."""
+    """Mostrar la lista de vuelos."""
 
     model = Flight
     template_name = "airline_app/flight_list.html"
@@ -361,7 +361,7 @@ class FlightListView(ListView):
 
 
 class FlightCreateView(CreateView):
-    """Create a new flight."""
+    """Crear un vuelo."""
 
     model = Flight
     form_class = FlightForm
@@ -371,7 +371,7 @@ class FlightCreateView(CreateView):
     def form_valid(self, form):
         try:
             self.object = form.save()
-            # Validate copilots after saving
+            # Validación de copilotos
             self.object.validate_copilots()
             messages.success(self.request, "Vuelo creado exitosamente.")
             return redirect(self.success_url)
@@ -383,7 +383,7 @@ class FlightCreateView(CreateView):
 
 
 class FlightUpdateView(UpdateView):
-    """Update an existing flight."""
+    """Actualizar un vuelo."""
 
     model = Flight
     form_class = FlightForm
@@ -393,7 +393,7 @@ class FlightUpdateView(UpdateView):
     def form_valid(self, form):
         try:
             self.object = form.save()
-            # Validate copilots after saving
+            # Valida los copilotos
             self.object.validate_copilots()
             messages.success(self.request, "Vuelo actualizado exitosamente.")
             return redirect(self.success_url)
@@ -405,7 +405,7 @@ class FlightUpdateView(UpdateView):
 
 
 class FlightDeleteView(DeleteView):
-    """Delete a flight."""
+    """Borrar un vuelo."""
 
     model = Flight
     template_name = "airline_app/flight_confirm_delete.html"
@@ -417,7 +417,7 @@ class FlightDeleteView(DeleteView):
 
 
 class FlightDetailView(DetailView):
-    """Display flight details with all resource assignments."""
+    """Detallar un vuelo."""
 
     model = Flight
     template_name = "airline_app/flight_detail.html"
@@ -432,7 +432,7 @@ class FlightDetailView(DetailView):
 
 
 def check_availability(request):
-    """Check resource availability for a given time period."""
+    """Checkea la disponibilidad de los recursos en el tiempo dado."""
     if request.method == "POST":
         form = ResourceAvailabilityForm(request.POST)
         if form.is_valid():

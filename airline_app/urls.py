@@ -4,7 +4,7 @@ from . import views
 urlpatterns = [
     # Home
     path("", views.home, name="home"),
-    # Runway URLs
+    # URLs para pistas
     path("pistas/", views.RunwayListView.as_view(), name="runway_list"),
     path("pistas/crear/", views.RunwayCreateView.as_view(), name="runway_create"),
     path("pistas/<int:pk>/", views.RunwayDetailView.as_view(), name="runway_detail"),
@@ -18,7 +18,7 @@ urlpatterns = [
         views.RunwayDeleteView.as_view(),
         name="runway_delete",
     ),
-    # Gate URLs
+    # URLs para puertas de embargue
     path("puertas/", views.GateListView.as_view(), name="gate_list"),
     path("puertas/crear/", views.GateCreateView.as_view(), name="gate_create"),
     path("puertas/<int:pk>/", views.GateDetailView.as_view(), name="gate_detail"),
@@ -28,7 +28,7 @@ urlpatterns = [
     path(
         "puertas/<int:pk>/eliminar/", views.GateDeleteView.as_view(), name="gate_delete"
     ),
-    # Personnel URLs
+    # URLs para el personal
     path("personal/", views.PersonnelListView.as_view(), name="personnel_list"),
     path(
         "personal/crear/", views.PersonnelCreateView.as_view(), name="personnel_create"
@@ -48,7 +48,7 @@ urlpatterns = [
         views.PersonnelDeleteView.as_view(),
         name="personnel_delete",
     ),
-    # Aircraft URLs
+    # URLs para los aviones
     path("aeronaves/", views.AircraftListView.as_view(), name="aircraft_list"),
     path(
         "aeronaves/crear/", views.AircraftCreateView.as_view(), name="aircraft_create"
@@ -68,7 +68,7 @@ urlpatterns = [
         views.AircraftDeleteView.as_view(),
         name="aircraft_delete",
     ),
-    # Flight URLs
+    # URLs para los vuelos
     path("vuelos/", views.FlightListView.as_view(), name="flight_list"),
     path("vuelos/crear/", views.FlightCreateView.as_view(), name="flight_create"),
     path("vuelos/<int:pk>/", views.FlightDetailView.as_view(), name="flight_detail"),
@@ -82,6 +82,6 @@ urlpatterns = [
         views.FlightDeleteView.as_view(),
         name="flight_delete",
     ),
-    # Utility URLs
+    # URLs de utilidad
     path("disponibilidad/", views.check_availability, name="check_availability"),
 ]

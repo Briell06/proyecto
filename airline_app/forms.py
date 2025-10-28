@@ -1,6 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Runway, Gate, Personnel, Aircraft, Flight
+
+from .models import Aircraft, Flight, Gate, Personnel, Runway
 
 
 class RunwayForm(forms.ModelForm):
