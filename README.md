@@ -24,48 +24,29 @@ Sistema Django para la coordinación de operaciones de vuelo, asignación de rec
 
 ```bash
 git clone https://github.com/Briell06/proyecto.git
-cd "proyecto v2"
+cd "proyecto"
 ```
 
 ### 2. Configurar entorno virtual
 
-#### Windows
+### Windows
 
 ```bash
-# Crear entorno virtual
-python -m venv env
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 
-# Activar entorno virtual
-env\Scripts\activate
+uv sync
 
-# Instalar dependencias
-pip install -r requirements.txt
+.venv\Scripts\activate
 ```
 
-#### Linux
+### Linux/macOS
 
 ```bash
-# Crear entorno virtual
-python3 -m venv env
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Activar entorno virtual
-source env/bin/activate
+uv sync
 
-# Instalar dependencias
-pip install -r requirements.txt
-```
-
-#### macOS
-
-```bash
-# Crear entorno virtual
-python3 -m venv env
-
-# Activar entorno virtual
-source env/bin/activate
-
-# Instalar dependencias
-pip install -r requirements.txt
+source .venv/bin/activate
 ```
 
 ### 3. Configurar base de datos

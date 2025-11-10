@@ -1,8 +1,9 @@
-from typing import Any
-from django.db import models
-from django.core.exceptions import ValidationError
-from django.utils import timezone
 from datetime import timedelta
+from typing import Any
+
+from django.core.exceptions import ValidationError
+from django.db import models
+from django.utils import timezone
 
 
 class Runway(models.Model):
@@ -128,7 +129,7 @@ class Personnel(models.Model):
         max_length=50, unique=True, verbose_name="Número de Licencia"
     )
     years_of_experience = models.PositiveIntegerField(
-        verbose_name="Años de Experiencia"
+        verbose_name="Años de Experiencia",
     )
     is_active = models.BooleanField(default=True, verbose_name="Activo")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -504,4 +505,5 @@ class Flight(models.Model):
     def save(self, *args, **kwargs):
         """Corre una validación completa antes salvar los datos a la base de datos."""
         self.full_clean()
+        super().save(*args, **kwargs)
         super().save(*args, **kwargs)

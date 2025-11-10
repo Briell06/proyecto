@@ -1,27 +1,28 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from django.core.exceptions import ValidationError
-from django.views.generic import (
-    ListView,
-    CreateView,
-    UpdateView,
-    DeleteView,
-    DetailView,
-)
-from django.urls import reverse_lazy
-from django.db.models import Q
 from datetime import datetime
 
-from .models import Runway, Gate, Personnel, Aircraft, Flight
+from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse_lazy
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    UpdateView,
+)
+
 from .forms import (
-    RunwayForm,
-    GateForm,
-    PersonnelForm,
     AircraftForm,
     FlightForm,
     FlightSearchForm,
+    GateForm,
+    PersonnelForm,
     ResourceAvailabilityForm,
+    RunwayForm,
 )
+from .models import Aircraft, Flight, Gate, Personnel, Runway
 
 
 def home(request):
