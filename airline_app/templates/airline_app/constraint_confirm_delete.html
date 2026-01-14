@@ -1,0 +1,38 @@
+{% extends 'airline_app/base.html' %}
+{% block title %}
+  Eliminar Restricción - Sistema de Gestión de Aeropuerto
+{% endblock title %}
+{% block content %}
+  <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-dark-900/50 backdrop-blur-lg border border-red-800 rounded-xl p-8">
+      <div class="text-center mb-6">
+        <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+        <h1 class="text-3xl font-bold text-red-400 mb-2">Confirmar Eliminación</h1>
+        <p class="text-gray-400">Esta acción no se puede deshacer</p>
+      </div>
+      <div class="bg-dark-800/50 rounded-lg p-6 mb-6">
+        <p class="text-lg text-gray-300 mb-4">
+          ¿Estás seguro de que deseas eliminar la restricción
+          <span class="font-bold text-cyan-400">"{{ object.name }}"</span>?
+        </p>
+        <div class="text-sm text-gray-400 space-y-2">
+          <p><strong>Tipo:</strong> {{ object.get_constraint_type_display }}</p>
+          <p><strong>Descripción:</strong> {{ object.description }}</p>
+        </div>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <div class="flex items-center justify-center space-x-4">
+          <a href="{% url 'constraint_list' %}"
+             class="px-6 py-3 bg-dark-800 text-gray-300 rounded-lg hover:bg-dark-700 transition">
+            <i class="fas fa-times mr-2"></i>Cancelar
+          </a>
+          <button type="submit"
+                  class="px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition">
+            <i class="fas fa-trash mr-2"></i>Eliminar Definitivamente
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock content %}

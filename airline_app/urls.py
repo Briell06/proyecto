@@ -84,4 +84,29 @@ urlpatterns = [
     ),
     # URLs de utilidad
     path("disponibilidad/", views.check_availability, name="check_availability"),
+    path("buscar-horario/", views.find_slot, name="find_slot"),
+    # URLs para restricciones de recursos
+    path(
+        "restricciones/", views.ConstraintListView.as_view(), name="constraint_list"
+    ),
+    path(
+        "restricciones/crear/",
+        views.ConstraintCreateView.as_view(),
+        name="constraint_create",
+    ),
+    path(
+        "restricciones/<int:pk>/",
+        views.ConstraintDetailView.as_view(),
+        name="constraint_detail",
+    ),
+    path(
+        "restricciones/<int:pk>/editar/",
+        views.ConstraintUpdateView.as_view(),
+        name="constraint_update",
+    ),
+    path(
+        "restricciones/<int:pk>/eliminar/",
+        views.ConstraintDeleteView.as_view(),
+        name="constraint_delete",
+    ),
 ]

@@ -1,9 +1,89 @@
 from datetime import timedelta
-from typing import Any
 
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
+
+
+class ResourceConstraint(models.Model):
+    """
+    Define reglas de negocio para la combinación de recursos.
+    Implementa dos tipos de restricciones:
+    1. CO_REQUISITE: Si se usa el recurso primario, DEBE incluirse el recurso requerido
+    2. MUTUAL_EXCLUSION: Si se usa el recurso primario, NO PUEDE usarse el recurso excluido
+    """
+
+    CONSTRAINT_TYPES = [
+        ("CO_REQUISITE", "Co-requisito (Inclusión Obligatoria)"),
+        ("MUTUAL_EXCLUSION", "Exclusión Mutua"),
+    ]
+
+    RESOURCE_TYPES = [
+        ("runway", "Pista"),
+        ("gate", "Puerta"),
+        ("aircraft", "Aeronave"),
+        ("personnel", "Personal"),
+    ]
+
+    name = models.CharField(max_length=200, verbose_name="Nombre de la Restricción")
+    constraint_type = models.CharField(
+        max_length=20, choices=CONSTRAINT_TYPES, verbose_name="Tipo de Restricción"
+    )
+    description = models.TextField(verbose_name="Descripción")
+
+    # Recurso primario (el que dispara la restricción)
+    primary_resource_type = models.CharField(
+        max_length=20, choices=RESOURCE_TYPES, verbose_name="Tipo de Recurso Primario"
+    )
+    primary_resource_id = models.PositiveIntegerField(
+        verbose_name="ID del Recurso Primario"
+    )
+
+    # Recurso relacionado (el que debe/no debe estar presente)
+    related_resource_type = models.CharField(
+        max_length=20,
+        choices=RESOURCE_TYPES,
+        verbose_name="Tipo de Recurso Relacionado",
+    )
+    related_resource_id = models.PositiveIntegerField(
+        verbose_name="ID del Recurso Relacionado"
+    )
+
+    is_active = models.BooleanField(default=True, verbose_name="Activa")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Restricción de Recursos"
+        verbose_name_plural = "Restricciones de Recursos"
+        ordering = ["name"]
+
+    def __str__(self):
+        return f"{self.name} ({self.get_constraint_type_display()})"
+
+    def get_primary_resource(self):
+        """Obtiene la instancia del recurso primario."""
+        if self.primary_resource_type == "runway":
+            return Runway.objects.filter(id=self.primary_resource_id).first()
+        elif self.primary_resource_type == "gate":
+            return Gate.objects.filter(id=self.primary_resource_id).first()
+        elif self.primary_resource_type == "aircraft":
+            return Aircraft.objects.filter(id=self.primary_resource_id).first()
+        elif self.primary_resource_type == "personnel":
+            return Personnel.objects.filter(id=self.primary_resource_id).first()
+        return None
+
+    def get_related_resource(self):
+        """Obtiene la instancia del recurso relacionado."""
+        if self.related_resource_type == "runway":
+            return Runway.objects.filter(id=self.related_resource_id).first()
+        elif self.related_resource_type == "gate":
+            return Gate.objects.filter(id=self.related_resource_id).first()
+        elif self.related_resource_type == "aircraft":
+            return Aircraft.objects.filter(id=self.related_resource_id).first()
+        elif self.related_resource_type == "personnel":
+            return Personnel.objects.filter(id=self.related_resource_id).first()
+        return None
 
 
 class Runway(models.Model):
@@ -457,8 +537,65 @@ class Flight(models.Model):
                 code="pilot_conflict",
             )
 
+        # Valida restricciones de recursos
+        constraint_errors = self.validate_resource_constraints()
+        if constraint_errors:
+            errors["__all__"] = constraint_errors
+
         if errors:
             raise ValidationError(errors)
+
+    def validate_resource_constraints(self):
+        """
+        Valida que el vuelo no viole ninguna restricción de recursos activa.
+        Retorna una lista de errores de validación.
+        """
+        errors = []
+        active_constraints = ResourceConstraint.objects.filter(is_active=True)
+
+        # Construir diccionario de recursos del vuelo actual
+        flight_resources = {
+            "runway": self.runway.id if self.runway else None,
+            "gate": self.gate.id if self.gate else None,
+            "aircraft": self.aircraft.id if self.aircraft else None,
+            "pilot": self.pilot.id if self.pilot else None,
+        }
+
+        for constraint in active_constraints:
+            # Verificar si este vuelo usa el recurso primario de la restricción
+            primary_id = flight_resources.get(constraint.primary_resource_type)
+            if primary_id != constraint.primary_resource_id:
+                continue  # Esta restricción no aplica a este vuelo
+
+            related_id = flight_resources.get(constraint.related_resource_type)
+
+            if constraint.constraint_type == "CO_REQUISITE":
+                # Co-requisito: El recurso relacionado DEBE estar presente
+                if related_id != constraint.related_resource_id:
+                    primary_resource = constraint.get_primary_resource()
+                    related_resource = constraint.get_related_resource()
+                    errors.append(
+                        ValidationError(
+                            f'RESTRICCIÓN VIOLADA: "{constraint.name}". '
+                            f"Si se usa {primary_resource}, DEBE incluirse {related_resource}.",
+                            code="co_requisite_violation",
+                        )
+                    )
+
+            elif constraint.constraint_type == "MUTUAL_EXCLUSION":
+                # Exclusión mutua: El recurso relacionado NO PUEDE estar presente
+                if related_id == constraint.related_resource_id:
+                    primary_resource = constraint.get_primary_resource()
+                    related_resource = constraint.get_related_resource()
+                    errors.append(
+                        ValidationError(
+                            f'RESTRICCIÓN VIOLADA: "{constraint.name}". '
+                            f"Si se usa {primary_resource}, NO PUEDE usarse {related_resource}.",
+                            code="mutual_exclusion_violation",
+                        )
+                    )
+
+        return errors
 
     def validate_copilots(self):
         """
@@ -506,4 +643,90 @@ class Flight(models.Model):
         """Corre una validación completa antes salvar los datos a la base de datos."""
         self.full_clean()
         super().save(*args, **kwargs)
-        super().save(*args, **kwargs)
+
+    @staticmethod
+    def find_next_available_slot(
+        runway_id, gate_id, aircraft_id, pilot_id, duration_hours, start_search_from=None
+    ):
+        """
+        Busca el próximo slot de tiempo disponible donde TODOS los recursos estén libres
+        y no se violen restricciones.
+
+        Args:
+            runway_id: ID de la pista
+            gate_id: ID de la puerta
+            aircraft_id: ID de la aeronave
+            pilot_id: ID del piloto
+            duration_hours: Duración del vuelo en horas
+            start_search_from: Fecha desde la cual buscar (por defecto: ahora)
+
+        Returns:
+            dict con 'departure_time', 'arrival_time' o None si no encuentra slot en las próximas 30 días
+        """
+        if start_search_from is None:
+            start_search_from = timezone.now()
+
+        # Obtener recursos
+        try:
+            runway = Runway.objects.get(id=runway_id)
+            gate = Gate.objects.get(id=gate_id)
+            aircraft = Aircraft.objects.get(id=aircraft_id)
+            pilot = Personnel.objects.get(id=pilot_id)
+        except (Runway.DoesNotExist, Gate.DoesNotExist, Aircraft.DoesNotExist, Personnel.DoesNotExist):
+            return None
+
+        duration_delta = timedelta(hours=duration_hours)
+        search_increment = timedelta(hours=1)  # Buscar en incrementos de 1 hora
+        max_search_days = 30
+        max_search_time = start_search_from + timedelta(days=max_search_days)
+
+        current_start = start_search_from
+
+        while current_start < max_search_time:
+            current_end = current_start + duration_delta
+
+            # Verificar disponibilidad de todos los recursos
+            all_available = (
+                runway.is_available(current_start, current_end)
+                and gate.is_available(current_start, current_end)
+                and aircraft.is_available(current_start, current_end)
+                and pilot.is_available(current_start, current_end)
+            )
+
+            if all_available:
+                # Verificar restricciones
+                flight_resources = {
+                    "runway": runway_id,
+                    "gate": gate_id,
+                    "aircraft": aircraft_id,
+                    "pilot": pilot_id,
+                }
+
+                constraints_valid = True
+                active_constraints = ResourceConstraint.objects.filter(is_active=True)
+
+                for constraint in active_constraints:
+                    primary_id = flight_resources.get(constraint.primary_resource_type)
+                    if primary_id != constraint.primary_resource_id:
+                        continue
+
+                    related_id = flight_resources.get(constraint.related_resource_type)
+
+                    if constraint.constraint_type == "CO_REQUISITE":
+                        if related_id != constraint.related_resource_id:
+                            constraints_valid = False
+                            break
+                    elif constraint.constraint_type == "MUTUAL_EXCLUSION":
+                        if related_id == constraint.related_resource_id:
+                            constraints_valid = False
+                            break
+
+                if constraints_valid:
+                    return {
+                        "departure_time": current_start,
+                        "arrival_time": current_end,
+                    }
+
+            current_start += search_increment
+
+        return None  # No se encontró slot disponible en los próximos 30 días

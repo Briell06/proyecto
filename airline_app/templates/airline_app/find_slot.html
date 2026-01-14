@@ -1,0 +1,226 @@
+{% extends 'airline_app/base.html' %}
+{% block title %}
+  Buscar Horario Disponible - Sistema de Gestión de Aeropuerto
+{% endblock title %}
+{% block content %}
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+        <i class="fas fa-search mr-3"></i>Buscar Horario Disponible
+      </h1>
+      <p class="text-gray-400 mt-2">
+        Encuentra automáticamente el próximo slot de tiempo donde todos los recursos estén disponibles
+      </p>
+    </div>
+    <div class="grid lg:grid-cols-2 gap-8">
+      <!-- Form -->
+      <div class="bg-dark-900/50 backdrop-blur-lg border border-dark-800 rounded-xl p-8">
+        <h2 class="text-2xl font-semibold text-cyan-400 mb-6">
+          <i class="fas fa-sliders-h mr-2"></i>Parámetros de Búsqueda
+        </h2>
+        <form method="post" class="space-y-6">
+          {% csrf_token %}
+          <!-- Runway -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">{{ form.runway.label }}</label>
+            {{ form.runway }}
+            {% if form.runway.errors %}
+              <p class="mt-1 text-sm text-red-400">{{ form.runway.errors.0 }}</p>
+            {% endif %}
+          </div>
+          <!-- Gate -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">{{ form.gate.label }}</label>
+            {{ form.gate }}
+            {% if form.gate.errors %}
+              <p class="mt-1 text-sm text-red-400">{{ form.gate.errors.0 }}</p>
+            {% endif %}
+          </div>
+          <!-- Aircraft -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">{{ form.aircraft.label }}</label>
+            {{ form.aircraft }}
+            {% if form.aircraft.errors %}
+              <p class="mt-1 text-sm text-red-400">{{ form.aircraft.errors.0 }}</p>
+            {% endif %}
+          </div>
+          <!-- Pilot -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">{{ form.pilot.label }}</label>
+            {{ form.pilot }}
+            {% if form.pilot.errors %}
+              <p class="mt-1 text-sm text-red-400">{{ form.pilot.errors.0 }}</p>
+            {% endif %}
+          </div>
+          <!-- Duration -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">{{ form.duration_hours.label }}</label>
+            {{ form.duration_hours }}
+            {% if form.duration_hours.errors %}
+              <p class="mt-1 text-sm text-red-400">{{ form.duration_hours.errors.0 }}</p>
+            {% endif %}
+            <p class="mt-1 text-xs text-gray-500">Ingresa la duración en horas (ej: 2.5 para 2 horas y 30 minutos)</p>
+          </div>
+          <!-- Start Search From -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">{{ form.start_search_from.label }}</label>
+            {{ form.start_search_from }}
+            {% if form.start_search_from.errors %}
+              <p class="mt-1 text-sm text-red-400">{{ form.start_search_from.errors.0 }}</p>
+            {% endif %}
+            <p class="mt-1 text-xs text-gray-500">{{ form.start_search_from.help_text }}</p>
+          </div>
+          <!-- Submit Button -->
+          <button type="submit"
+                  class="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium rounded-lg hover:from-cyan-600 hover:to-blue-700 transition shadow-lg hover:shadow-cyan-500/50">
+            <i class="fas fa-search mr-2"></i>Buscar Horario Disponible
+          </button>
+        </form>
+      </div>
+      <!-- Results -->
+      <div>
+        {% if result %}
+          <div class="bg-gradient-to-br from-green-900/50 to-emerald-900/50 backdrop-blur-lg border border-green-700 rounded-xl p-8">
+            <div class="text-center mb-6">
+              <i class="fas fa-check-circle text-6xl text-green-400 mb-4"></i>
+              <h2 class="text-3xl font-bold text-green-400 mb-2">¡Horario Encontrado!</h2>
+              <p class="text-gray-300">El próximo slot disponible es:</p>
+            </div>
+            <div class="space-y-4">
+              <div class="bg-dark-900/50 rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-gray-400 text-sm">Hora de Salida</span>
+                  <i class="fas fa-plane-departure text-cyan-400"></i>
+                </div>
+                <p class="text-2xl font-bold text-white">{{ result.departure_time|date:"d/m/Y" }}</p>
+                <p class="text-xl text-cyan-400">{{ result.departure_time|date:"H:i" }}</p>
+              </div>
+              <div class="bg-dark-900/50 rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-gray-400 text-sm">Hora de Llegada</span>
+                  <i class="fas fa-plane-arrival text-cyan-400"></i>
+                </div>
+                <p class="text-2xl font-bold text-white">{{ result.arrival_time|date:"d/m/Y" }}</p>
+                <p class="text-xl text-cyan-400">{{ result.arrival_time|date:"H:i" }}</p>
+              </div>
+              <div class="bg-dark-900/50 rounded-lg p-4">
+                <h3 class="text-sm font-semibold text-gray-400 mb-3">Recursos Asignados:</h3>
+                <div class="space-y-2 text-sm">
+                  <div class="flex items-center justify-between">
+                    <span class="text-gray-500">Pista:</span>
+                    <span class="text-cyan-400 font-medium">{{ runway }}</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-gray-500">Puerta:</span>
+                    <span class="text-cyan-400 font-medium">{{ gate }}</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-gray-500">Aeronave:</span>
+                    <span class="text-cyan-400 font-medium">{{ aircraft }}</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-gray-500">Piloto:</span>
+                    <span class="text-cyan-400 font-medium">{{ pilot }}</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-gray-500">Duración:</span>
+                    <span class="text-cyan-400 font-medium">{{ duration_hours }} horas</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-6">
+              <a href="{% url 'flight_create' %}"
+                 class="block w-full text-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-lg hover:from-blue-600 hover:to-purple-700 transition">
+                <i class="fas fa-plus mr-2"></i>Crear Vuelo con este Horario
+              </a>
+            </div>
+          </div>
+        {% elif result == None and form.is_bound %}
+          <div class="bg-gradient-to-br from-yellow-900/50 to-orange-900/50 backdrop-blur-lg border border-yellow-700 rounded-xl p-8">
+            <div class="text-center">
+              <i class="fas fa-exclamation-triangle text-6xl text-yellow-400 mb-4"></i>
+              <h2 class="text-2xl font-bold text-yellow-400 mb-2">No se encontró horario</h2>
+              <p class="text-gray-300 mb-6">
+                No hay slots disponibles en los próximos 30 días con la combinación de recursos seleccionada.
+              </p>
+              <div class="bg-dark-900/50 rounded-lg p-4 text-left">
+                <h3 class="text-sm font-semibold text-gray-400 mb-3">Posibles razones:</h3>
+                <ul class="space-y-2 text-sm text-gray-300">
+                  <li class="flex items-start">
+                    <i class="fas fa-circle text-xs text-yellow-600 mr-2 mt-1"></i>
+                    <span>Los recursos están muy ocupados</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fas fa-circle text-xs text-yellow-600 mr-2 mt-1"></i>
+                    <span>Existe una restricción que impide la combinación de recursos</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fas fa-circle text-xs text-yellow-600 mr-2 mt-1"></i>
+                    <span>La aeronave requiere mantenimiento de 24 horas</span>
+                  </li>
+                </ul>
+              </div>
+              <div class="mt-6">
+                <p class="text-sm text-gray-400 mb-3">Sugerencias:</p>
+                <div class="flex flex-col space-y-2">
+                  <a href="{% url 'constraint_list' %}"
+                     class="px-4 py-2 bg-dark-800 text-gray-300 rounded-lg hover:bg-dark-700 transition text-center">
+                    <i class="fas fa-link mr-2"></i>Ver Restricciones Activas
+                  </a>
+                  <a href="{% url 'check_availability' %}"
+                     class="px-4 py-2 bg-dark-800 text-gray-300 rounded-lg hover:bg-dark-700 transition text-center">
+                    <i class="fas fa-calendar-check mr-2"></i>Verificar Disponibilidad Individual
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="bg-dark-900/50 backdrop-blur-lg border border-dark-800 rounded-xl p-8">
+            <div class="text-center">
+              <i class="fas fa-info-circle text-6xl text-cyan-400 mb-4"></i>
+              <h2 class="text-2xl font-semibold text-gray-300 mb-2">Instrucciones</h2>
+              <div class="text-left mt-6 space-y-4 text-gray-400">
+                <div class="flex items-start">
+                  <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-900/50 flex items-center justify-center text-cyan-400 font-bold mr-3 mt-1">
+                    1
+                  </div>
+                  <div>
+                    <p class="font-medium text-gray-300">Selecciona los recursos</p>
+                    <p class="text-sm">Elige la pista, puerta, aeronave y piloto que deseas utilizar.</p>
+                  </div>
+                </div>
+                <div class="flex items-start">
+                  <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-900/50 flex items-center justify-center text-cyan-400 font-bold mr-3 mt-1">
+                    2
+                  </div>
+                  <div>
+                    <p class="font-medium text-gray-300">Define la duración</p>
+                    <p class="text-sm">Especifica cuántas horas durará el vuelo.</p>
+                  </div>
+                </div>
+                <div class="flex items-start">
+                  <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-900/50 flex items-center justify-center text-cyan-400 font-bold mr-3 mt-1">
+                    3
+                  </div>
+                  <div>
+                    <p class="font-medium text-gray-300">Buscar horario</p>
+                    <p class="text-sm">El sistema encontrará automáticamente el próximo slot disponible en los próximos 30 días.</p>
+                  </div>
+                </div>
+                <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-4 mt-6">
+                  <p class="text-sm text-blue-300">
+                    <i class="fas fa-lightbulb mr-2"></i>
+                    <strong>Tip:</strong> El algoritmo considera conflictos de recursos, restricciones activas y el período de mantenimiento de 24 horas para aeronaves.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock content %}

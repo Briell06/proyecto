@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import Aircraft, Flight, Gate, Personnel, Runway
+from .models import Aircraft, Flight, Gate, Personnel, Runway, ResourceConstraint
 
 
 class RunwayForm(forms.ModelForm):
@@ -366,3 +366,263 @@ class ResourceAvailabilityForm(forms.Form):
             )
 
         return cleaned_data
+
+class ResourceConstraintForm(forms.ModelForm):
+    """Form for creating and editing resource constraints."""
+
+    # Campos adicionales para selección de recursos
+    primary_runway = forms.ModelChoiceField(
+        queryset=Runway.objects.all(),
+        required=False,
+        label="Pista Primaria",
+        widget=forms.Select(attrs={"class": "form-control p-3.5"}),
+    )
+    primary_gate = forms.ModelChoiceField(
+        queryset=Gate.objects.all(),
+        required=False,
+        label="Puerta Primaria",
+        widget=forms.Select(attrs={"class": "form-control p-3.5"}),
+    )
+    primary_aircraft = forms.ModelChoiceField(
+        queryset=Aircraft.objects.all(),
+        required=False,
+        label="Aeronave Primaria",
+        widget=forms.Select(attrs={"class": "form-control p-3.5"}),
+    )
+    primary_personnel = forms.ModelChoiceField(
+        queryset=Personnel.objects.all(),
+        required=False,
+        label="Personal Primario",
+        widget=forms.Select(attrs={"class": "form-control p-3.5"}),
+    )
+
+    related_runway = forms.ModelChoiceField(
+        queryset=Runway.objects.all(),
+        required=False,
+        label="Pista Relacionada",
+        widget=forms.Select(attrs={"class": "form-control p-3.5"}),
+    )
+    related_gate = forms.ModelChoiceField(
+        queryset=Gate.objects.all(),
+        required=False,
+        label="Puerta Relacionada",
+        widget=forms.Select(attrs={"class": "form-control p-3.5"}),
+    )
+    related_aircraft = forms.ModelChoiceField(
+        queryset=Aircraft.objects.all(),
+        required=False,
+        label="Aeronave Relacionada",
+        widget=forms.Select(attrs={"class": "form-control p-3.5"}),
+    )
+    related_personnel = forms.ModelChoiceField(
+        queryset=Personnel.objects.all(),
+        required=False,
+        label="Personal Relacionado",
+        widget=forms.Select(attrs={"class": "form-control p-3.5"}),
+    )
+
+    class Meta:
+        model = ResourceConstraint
+        fields = [
+            "name",
+            "constraint_type",
+            "description",
+            "primary_resource_type",
+            "related_resource_type",
+            "is_active",
+        ]
+        labels = {
+            "name": "Nombre de la Restricción",
+            "constraint_type": "Tipo de Restricción",
+            "description": "Descripción",
+            "primary_resource_type": "Tipo de Recurso Primario",
+            "related_resource_type": "Tipo de Recurso Relacionado",
+            "is_active": "Activa",
+        }
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Ej: Pista Grande Requiere Puerta Grande",
+                }
+            ),
+            "constraint_type": forms.Select(
+                attrs={"class": "form-control p-3.5", "id": "id_constraint_type"}
+            ),
+            "description": forms.Textarea(
+                attrs={
+                    "class": "form-control p-3",
+                    "rows": 3,
+                    "placeholder": "Explica por qué existe esta restricción...",
+                }
+            ),
+            "primary_resource_type": forms.Select(
+                attrs={"class": "form-control p-3.5", "id": "id_primary_resource_type"}
+            ),
+            "related_resource_type": forms.Select(
+                attrs={"class": "form-control p-3.5", "id": "id_related_resource_type"}
+            ),
+            "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Si estamos editando, pre-cargar los valores
+        if self.instance and self.instance.pk:
+            primary_type = self.instance.primary_resource_type
+            related_type = self.instance.related_resource_type
+
+            # Pre-seleccionar el recurso primario
+            if primary_type == "runway":
+                self.fields["primary_runway"].initial = self.instance.primary_resource_id
+            elif primary_type == "gate":
+                self.fields["primary_gate"].initial = self.instance.primary_resource_id
+            elif primary_type == "aircraft":
+                self.fields[
+                    "primary_aircraft"
+                ].initial = self.instance.primary_resource_id
+            elif primary_type == "personnel":
+                self.fields[
+                    "primary_personnel"
+                ].initial = self.instance.primary_resource_id
+
+            # Pre-seleccionar el recurso relacionado
+            if related_type == "runway":
+                self.fields["related_runway"].initial = self.instance.related_resource_id
+            elif related_type == "gate":
+                self.fields["related_gate"].initial = self.instance.related_resource_id
+            elif related_type == "aircraft":
+                self.fields[
+                    "related_aircraft"
+                ].initial = self.instance.related_resource_id
+            elif related_type == "personnel":
+                self.fields[
+                    "related_personnel"
+                ].initial = self.instance.related_resource_id
+
+    def clean(self):
+        """Validate that resources exist and constraint makes sense."""
+        cleaned_data = super().clean()
+        primary_type = cleaned_data.get("primary_resource_type")
+        related_type = cleaned_data.get("related_resource_type")
+
+        # Obtener el ID del recurso primario según el tipo
+        primary_id = None
+        if primary_type == "runway" and cleaned_data.get("primary_runway"):
+            primary_id = cleaned_data["primary_runway"].id
+        elif primary_type == "gate" and cleaned_data.get("primary_gate"):
+            primary_id = cleaned_data["primary_gate"].id
+        elif primary_type == "aircraft" and cleaned_data.get("primary_aircraft"):
+            primary_id = cleaned_data["primary_aircraft"].id
+        elif primary_type == "personnel" and cleaned_data.get("primary_personnel"):
+            primary_id = cleaned_data["primary_personnel"].id
+
+        # Obtener el ID del recurso relacionado según el tipo
+        related_id = None
+        if related_type == "runway" and cleaned_data.get("related_runway"):
+            related_id = cleaned_data["related_runway"].id
+        elif related_type == "gate" and cleaned_data.get("related_gate"):
+            related_id = cleaned_data["related_gate"].id
+        elif related_type == "aircraft" and cleaned_data.get("related_aircraft"):
+            related_id = cleaned_data["related_aircraft"].id
+        elif related_type == "personnel" and cleaned_data.get("related_personnel"):
+            related_id = cleaned_data["related_personnel"].id
+
+        # Validar que se haya seleccionado un recurso primario
+        if primary_type and not primary_id:
+            raise ValidationError(
+                f"Debe seleccionar un recurso primario del tipo {self._get_type_display(primary_type)}."
+            )
+
+        # Validar que se haya seleccionado un recurso relacionado
+        if related_type and not related_id:
+            raise ValidationError(
+                f"Debe seleccionar un recurso relacionado del tipo {self._get_type_display(related_type)}."
+            )
+
+        # Validar que no sea el mismo recurso
+        if (
+            primary_type == related_type
+            and primary_id == related_id
+            and primary_id is not None
+        ):
+            raise ValidationError(
+                "El recurso primario y el relacionado no pueden ser el mismo."
+            )
+
+        # Guardar los IDs en el cleaned_data para usarlos en save()
+        cleaned_data["primary_resource_id"] = primary_id
+        cleaned_data["related_resource_id"] = related_id
+
+        return cleaned_data
+
+    def _get_type_display(self, resource_type):
+        """Get display name for resource type."""
+        types = {
+            "runway": "Pista",
+            "gate": "Puerta",
+            "aircraft": "Aeronave",
+            "personnel": "Personal",
+        }
+        return types.get(resource_type, resource_type)
+
+    def save(self, commit=True):
+        """Save the constraint with the selected resource IDs."""
+        instance = super().save(commit=False)
+        instance.primary_resource_id = self.cleaned_data["primary_resource_id"]
+        instance.related_resource_id = self.cleaned_data["related_resource_id"]
+        if commit:
+            instance.save()
+        return instance
+
+
+class FindSlotForm(forms.Form):
+    """Form for finding the next available time slot."""
+
+    runway = forms.ModelChoiceField(
+        queryset=Runway.objects.filter(is_active=True),
+        label="Pista",
+        widget=forms.Select(attrs={"class": "form-control p-3.5"}),
+    )
+
+    gate = forms.ModelChoiceField(
+        queryset=Gate.objects.filter(is_active=True),
+        label="Puerta",
+        widget=forms.Select(attrs={"class": "form-control p-3.5"}),
+    )
+
+    aircraft = forms.ModelChoiceField(
+        queryset=Aircraft.objects.filter(status="OPERATIONAL"),
+        label="Aeronave",
+        widget=forms.Select(attrs={"class": "form-control p-3.5"}),
+    )
+
+    pilot = forms.ModelChoiceField(
+        queryset=Personnel.objects.filter(personnel_type="PILOT", is_active=True),
+        label="Piloto",
+        widget=forms.Select(attrs={"class": "form-control p-3.5"}),
+    )
+
+    duration_hours = forms.DecimalField(
+        label="Duración del Vuelo (horas)",
+        min_value=0.5,
+        max_value=20,
+        decimal_places=1,
+        widget=forms.NumberInput(
+            attrs={"class": "form-control", "placeholder": "Ej: 3.5", "step": "0.5"}
+        ),
+    )
+
+    start_search_from = forms.DateTimeField(
+        label="Buscar desde (opcional)",
+        required=False,
+        widget=forms.DateTimeInput(
+            attrs={
+                "class": "form-control",
+                "type": "datetime-local",
+            },
+            format="%Y-%m-%dT%H:%M",
+        ),
+        help_text="Deja en blanco para buscar desde ahora",
+    )

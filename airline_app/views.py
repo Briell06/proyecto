@@ -21,8 +21,10 @@ from .forms import (
     PersonnelForm,
     ResourceAvailabilityForm,
     RunwayForm,
+    ResourceConstraintForm,
+    FindSlotForm,
 )
-from .models import Aircraft, Flight, Gate, Personnel, Runway
+from .models import Aircraft, Flight, Gate, Personnel, Runway, ResourceConstraint
 
 
 def home(request):
@@ -479,3 +481,115 @@ def check_availability(request):
         form = ResourceAvailabilityForm()
 
     return render(request, "airline_app/check_availability.html", {"form": form})
+
+# Vistas de Restricciones de Recursos
+class ConstraintListView(ListView):
+    """Listar restricciones de recursos."""
+
+    model = ResourceConstraint
+    template_name = "airline_app/constraint_list.html"
+    context_object_name = "constraints"
+    paginate_by = 10
+    ordering = ["name"]
+
+
+class ConstraintCreateView(CreateView):
+    """Crear restricción de recursos."""
+
+    model = ResourceConstraint
+    form_class = ResourceConstraintForm
+    template_name = "airline_app/constraint_form.html"
+    success_url = reverse_lazy("constraint_list")
+
+    def form_valid(self, form):
+        messages.success(self.request, "Restricción creada exitosamente.")
+        return super().form_valid(form)
+
+
+class ConstraintUpdateView(UpdateView):
+    """Actualizar restricción de recursos."""
+
+    model = ResourceConstraint
+    form_class = ResourceConstraintForm
+    template_name = "airline_app/constraint_form.html"
+    success_url = reverse_lazy("constraint_list")
+
+    def form_valid(self, form):
+        messages.success(self.request, "Restricción actualizada exitosamente.")
+        return super().form_valid(form)
+
+
+class ConstraintDeleteView(DeleteView):
+    """Eliminar restricción de recursos."""
+
+    model = ResourceConstraint
+    template_name = "airline_app/constraint_confirm_delete.html"
+    success_url = reverse_lazy("constraint_list")
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "Restricción eliminada exitosamente.")
+        return super().delete(request, *args, **kwargs)
+
+
+class ConstraintDetailView(DetailView):
+    """Detalles de una restricción de recursos."""
+
+    model = ResourceConstraint
+    template_name = "airline_app/constraint_detail.html"
+    context_object_name = "constraint"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["primary_resource"] = self.object.get_primary_resource()
+        context["related_resource"] = self.object.get_related_resource()
+        return context
+
+
+# Vista de búsqueda de horarios
+def find_slot(request):
+    """Buscar el próximo horario disponible para un vuelo."""
+    if request.method == "POST":
+        form = FindSlotForm(request.POST)
+        if form.is_valid():
+            runway = form.cleaned_data["runway"]
+            gate = form.cleaned_data["gate"]
+            aircraft = form.cleaned_data["aircraft"]
+            pilot = form.cleaned_data["pilot"]
+            duration_hours = float(form.cleaned_data["duration_hours"])
+            start_search_from = form.cleaned_data.get("start_search_from")
+
+            result = Flight.find_next_available_slot(
+                runway_id=runway.id,
+                gate_id=gate.id,
+                aircraft_id=aircraft.id,
+                pilot_id=pilot.id,
+                duration_hours=duration_hours,
+                start_search_from=start_search_from,
+            )
+
+            context = {
+                "form": form,
+                "result": result,
+                "runway": runway,
+                "gate": gate,
+                "aircraft": aircraft,
+                "pilot": pilot,
+                "duration_hours": duration_hours,
+            }
+
+            if result:
+                messages.success(
+                    request,
+                    f"¡Horario encontrado! Disponible desde {result['departure_time'].strftime('%Y-%m-%d %H:%M')} hasta {result['arrival_time'].strftime('%Y-%m-%d %H:%M')}",
+                )
+            else:
+                messages.warning(
+                    request,
+                    "No se encontró un horario disponible en los próximos 30 días con los recursos seleccionados.",
+                )
+
+            return render(request, "airline_app/find_slot.html", context)
+    else:
+        form = FindSlotForm()
+
+    return render(request, "airline_app/find_slot.html", {"form": form})

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Runway, Gate, Personnel, Aircraft, Flight
+from .models import Runway, Gate, Personnel, Aircraft, Flight, ResourceConstraint
 
 
 @admin.register(Runway)
@@ -134,3 +134,35 @@ class FlightAdmin(admin.ModelAdmin):
             form.instance.validate_copilots()
         except Exception as e:
             self.message_user(request, f"Warning: {str(e)}", level="warning")
+
+@admin.register(ResourceConstraint)
+class ResourceConstraintAdmin(admin.ModelAdmin):
+    """Interfaz de administración para el modelo de Restricciones de Recursos."""
+
+    list_display = [
+        "name",
+        "constraint_type",
+        "primary_resource_type",
+        "primary_resource_id",
+        "related_resource_type",
+        "related_resource_id",
+        "is_active",
+        "created_at",
+    ]
+    list_filter = ["constraint_type", "is_active", "primary_resource_type", "related_resource_type", "created_at"]
+    search_fields = ["name", "description"]
+    ordering = ["name"]
+    fieldsets = (
+        (
+            "Información Básica",
+            {"fields": ("name", "constraint_type", "description", "is_active")},
+        ),
+        (
+            "Recurso Primario",
+            {"fields": ("primary_resource_type", "primary_resource_id")},
+        ),
+        (
+            "Recurso Relacionado",
+            {"fields": ("related_resource_type", "related_resource_id")},
+        ),
+    )
