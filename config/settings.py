@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-duhhq@fspcmect&7uk-^yf@cy(*wz1fc$cl1td$-sv$fssk4jn
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["briell.pythonanywhere.com"]
+ALLOWED_HOSTS = ["briell.pythonanywhere.com", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -76,7 +76,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
+    "default": dj_database_url.config(
         default="sqlite:///" + os.path.join(BASE_DIR, "db.sqlite3")
     )
 }

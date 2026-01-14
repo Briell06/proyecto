@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Sistema de Gestión de Aeropuerto">
     <meta name="keywords" content="Sistema de Gestión de Aeropuerto">
+    <meta name="author" content="Briell Quintana">
+    <meta name="robots" content="index, follow">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- favicon -->
+    <link rel="icon" type="image/png" href="{% static 'airline_app/images/favicon.svg' %}" />
     <title>
       {% block title %}
         Sistema de Gestión de Aeropuerto
@@ -31,7 +36,7 @@
         <div class="flex items-center justify-between h-16">
           <div class="flex items-center">
             <a href="{% url 'home' %}" class="flex items-center space-x-3">
-              <i class="fas fa-plane-departure text-3xl text-cyan-400"></i>
+              <i class="fa fa-plane-departure text-3xl text-cyan-400"></i>
               <span class="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">AeroControl</span>
             </a>
           </div>
