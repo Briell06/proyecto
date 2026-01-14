@@ -43,4 +43,28 @@ document.addEventListener('DOMContentLoaded', function() {
       closeMessage(message);
     }, 5000);
   });
+
+  // Mobile Resources submenu toggle
+  const resourcesToggle = document.getElementById('mobile-resources-toggle');
+  const resourcesMenu = document.getElementById('mobile-resources-menu');
+  const resourcesIcon = document.getElementById('mobile-resources-icon');
+  
+  if (resourcesToggle && resourcesMenu && resourcesIcon) {
+    resourcesToggle.addEventListener('click', function() {
+      resourcesMenu.classList.toggle('hidden');
+      resourcesIcon.classList.toggle('rotate-180');
+    });
+  }
+
+  // Mobile Tools submenu toggle
+  const toolsToggle = document.getElementById('mobile-tools-toggle');
+  const toolsMenu = document.getElementById('mobile-tools-menu');
+  const toolsIcon = document.getElementById('mobile-tools-icon');
+  
+  if (toolsToggle && toolsMenu && toolsIcon) {
+    toolsToggle.addEventListener('click', function() {
+      toolsMenu.classList.toggle('hidden');
+      toolsIcon.classList.toggle('rotate-180');
+    });
+  }
 });

@@ -3,12 +3,13 @@
 <html lang="es" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
     <meta name="description" content="Sistema de Gestión de Aeropuerto">
     <meta name="keywords" content="Sistema de Gestión de Aeropuerto">
     <meta name="author" content="Briell Quintana">
     <meta name="robots" content="index, follow">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="theme-color" content="#020617" />
     <!-- favicon -->
     <link rel="icon" type="image/png" href="{% static 'airline_app/images/favicon.svg' %}" />
     <title>
@@ -39,6 +40,13 @@
               <i class="fa fa-plane-departure text-3xl text-cyan-400"></i>
               <span class="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">AeroControl</span>
             </a>
+          </div>
+          <!-- Mobile menu button -->
+          <div class="md:hidden">
+            <button id="mobile-menu-button"
+                    class="text-gray-300 hover:text-cyan-400 focus:outline-none focus:text-cyan-400">
+              <i class="fas fa-bars text-2xl"></i>
+            </button>
           </div>
           <div class="hidden md:block">
             <div class="ml-10 flex items-center space-x-4">
@@ -107,6 +115,72 @@
           </div>
         </div>
       </div>
+      <!-- Mobile menu -->
+      <div id="mobile-menu" class="hidden md:hidden">
+        <div class="px-2 pt-2 pb-3 space-y-1 bg-dark-900 border-t border-dark-800">
+          <a href="{% url 'home' %}"
+             class="text-gray-300 hover:bg-dark-800 hover:text-cyan-400 block px-3 py-2 rounded-md text-base font-medium">
+            <i class="fas fa-home mr-2"></i>Inicio
+          </a>
+          <!-- Resources submenu -->
+          <div class="space-y-1">
+            <button id="mobile-resources-toggle"
+                    class="text-gray-300 hover:bg-dark-800 hover:text-cyan-400 w-full text-left px-3 py-2 rounded-md text-base font-medium flex items-center justify-between">
+              <span><i class="fas fa-boxes mr-2"></i>Recursos</span>
+              <i class="fas fa-chevron-down text-xs transition-transform" id="mobile-resources-icon"></i>
+            </button>
+            <div id="mobile-resources-menu" class="hidden pl-4 space-y-1">
+              <a href="{% url 'runway_list' %}"
+                 class="text-gray-300 hover:bg-dark-800 hover:text-cyan-400 block px-3 py-2 rounded-md text-sm">
+                <i class="fas fa-road mr-2"></i>Pistas
+              </a>
+              <a href="{% url 'gate_list' %}"
+                 class="text-gray-300 hover:bg-dark-800 hover:text-cyan-400 block px-3 py-2 rounded-md text-sm">
+                <i class="fas fa-door-open mr-2"></i>Puertas
+              </a>
+              <a href="{% url 'personnel_list' %}"
+                 class="text-gray-300 hover:bg-dark-800 hover:text-cyan-400 block px-3 py-2 rounded-md text-sm">
+                <i class="fas fa-users mr-2"></i>Personal
+              </a>
+              <a href="{% url 'aircraft_list' %}"
+                 class="text-gray-300 hover:bg-dark-800 hover:text-cyan-400 block px-3 py-2 rounded-md text-sm">
+                <i class="fas fa-plane mr-2"></i>Aeronaves
+              </a>
+            </div>
+          </div>
+          <a href="{% url 'flight_list' %}"
+             class="text-gray-300 hover:bg-dark-800 hover:text-cyan-400 block px-3 py-2 rounded-md text-base font-medium">
+            <i class="fas fa-plane-departure mr-2"></i>Vuelos
+          </a>
+          <!-- Tools submenu -->
+          <div class="space-y-1">
+            <button id="mobile-tools-toggle"
+                    class="text-gray-300 hover:bg-dark-800 hover:text-cyan-400 w-full text-left px-3 py-2 rounded-md text-base font-medium flex items-center justify-between">
+              <span><i class="fas fa-tools mr-2"></i>Herramientas</span>
+              <i class="fas fa-chevron-down text-xs transition-transform" id="mobile-tools-icon"></i>
+            </button>
+            <div id="mobile-tools-menu" class="hidden pl-4 space-y-1">
+              <a href="{% url 'check_availability' %}"
+                 class="text-gray-300 hover:bg-dark-800 hover:text-cyan-400 block px-3 py-2 rounded-md text-sm">
+                <i class="fas fa-calendar-check mr-2"></i>Disponibilidad
+              </a>
+              <a href="{% url 'find_slot' %}"
+                 class="text-gray-300 hover:bg-dark-800 hover:text-cyan-400 block px-3 py-2 rounded-md text-sm">
+                <i class="fas fa-search mr-2"></i>Buscar Horario
+              </a>
+              <a href="{% url 'constraint_list' %}"
+                 class="text-gray-300 hover:bg-dark-800 hover:text-cyan-400 block px-3 py-2 rounded-md text-sm">
+                <i class="fas fa-link mr-2"></i>Restricciones
+              </a>
+            </div>
+          </div>
+          <a href="{% url 'admin:index' %}"
+             target="_blank"
+             class="text-gray-300 hover:bg-dark-800 hover:text-cyan-400 block px-3 py-2 rounded-md text-base font-medium">
+            <i class="fas fa-cog mr-2"></i>Admin
+          </a>
+        </div>
+      </div>
     </nav>
     <!-- Messages -->
     {% if messages %}
@@ -128,21 +202,71 @@
       </div>
     {% endif %}
     <!-- Main Content -->
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-      {% block content %}
-      {% endblock content %}
+    <main class="flex-grow w-full">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        {% block content %}
+        {% endblock content %}
+      </div>
     </main>
     <!-- Footer -->
     <footer class="bg-dark-900 border-t border-dark-800 mt-auto">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div class="text-center text-gray-400">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <div class="text-center text-gray-400 text-sm">
           <i class="fas fa-plane mr-2"></i>
-          <span>AeroControl - Sistema de Gestión de Aeropuerto © 2025</span>
+          <span>AeroControl © 2025</span>
         </div>
       </div>
     </footer>
     <!-- Custom JavaScript -->
     <script src="{% static 'airline_app/js/main.js' %}"></script>
+    <script>
+      // Mobile menu functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        if (mobileMenuButton && mobileMenu) {
+          mobileMenuButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            mobileMenu.classList.toggle('hidden');
+            const icon = mobileMenuButton.querySelector('i');
+            if (mobileMenu.classList.contains('hidden')) {
+              icon.classList.remove('fa-times');
+              icon.classList.add('fa-bars');
+            } else {
+              icon.classList.remove('fa-bars');
+              icon.classList.add('fa-times');
+            }
+          });
+        }
+        
+        // Mobile Resources submenu
+        const resourcesToggle = document.getElementById('mobile-resources-toggle');
+        const resourcesMenu = document.getElementById('mobile-resources-menu');
+        const resourcesIcon = document.getElementById('mobile-resources-icon');
+        
+        if (resourcesToggle && resourcesMenu && resourcesIcon) {
+          resourcesToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            resourcesMenu.classList.toggle('hidden');
+            resourcesIcon.classList.toggle('rotate-180');
+          });
+        }
+        
+        // Mobile Tools submenu
+        const toolsToggle = document.getElementById('mobile-tools-toggle');
+        const toolsMenu = document.getElementById('mobile-tools-menu');
+        const toolsIcon = document.getElementById('mobile-tools-icon');
+        
+        if (toolsToggle && toolsMenu && toolsIcon) {
+          toolsToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            toolsMenu.classList.toggle('hidden');
+            toolsIcon.classList.toggle('rotate-180');
+          });
+        }
+      });
+    </script>
     {% block extra_js %}
     {% endblock extra_js %}
   </body>
