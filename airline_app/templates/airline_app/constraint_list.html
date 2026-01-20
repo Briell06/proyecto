@@ -48,14 +48,14 @@
                                     <div class="flex items-center space-x-2">
                                         <span class="text-gray-500">Recurso Primario:</span>
                                         <span class="text-cyan-400 font-medium">
-                      {{ constraint.get_primary_resource_type_display }}: {{ constraint.name }}
+                      {{ constraint.get_primary_resource_type_display }}: {{ constraint.get_primary_resource }}
                     </span>
                                     </div>
                                     <div class="flex items-center space-x-2">
                                         <span class="text-gray-500">{% if constraint.constraint_type == 'CO_REQUISITE' %}
                                             Requiere{% else %}Excluye{% endif %}:</span>
                                         <span class="text-cyan-400 font-medium">
-                      {{ constraint.get_related_resource_type_display }}: {{ constraint.name }}
+                      {{ constraint.get_related_resource_type_display }}: {{ constraint.get_related_resource }}
                     </span>
                                     </div>
                                 </div>
