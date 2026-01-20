@@ -482,6 +482,7 @@ def check_availability(request):
 
     return render(request, "airline_app/check_availability.html", {"form": form})
 
+
 # Vistas de Restricciones de Recursos
 class ConstraintListView(ListView):
     """Listar restricciones de recursos."""
@@ -593,3 +594,4 @@ def find_slot(request):
         form = FindSlotForm()
 
     return render(request, "airline_app/find_slot.html", {"form": form})
+

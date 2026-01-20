@@ -646,7 +646,12 @@ class Flight(models.Model):
 
     @staticmethod
     def find_next_available_slot(
-        runway_id, gate_id, aircraft_id, pilot_id, duration_hours, start_search_from=None
+        runway_id,
+        gate_id,
+        aircraft_id,
+        pilot_id,
+        duration_hours,
+        start_search_from=None,
     ):
         """
         Busca el próximo slot de tiempo disponible donde TODOS los recursos estén libres
@@ -672,7 +677,12 @@ class Flight(models.Model):
             gate = Gate.objects.get(id=gate_id)
             aircraft = Aircraft.objects.get(id=aircraft_id)
             pilot = Personnel.objects.get(id=pilot_id)
-        except (Runway.DoesNotExist, Gate.DoesNotExist, Aircraft.DoesNotExist, Personnel.DoesNotExist):
+        except (
+            Runway.DoesNotExist,
+            Gate.DoesNotExist,
+            Aircraft.DoesNotExist,
+            Personnel.DoesNotExist,
+        ):
             return None
 
         duration_delta = timedelta(hours=duration_hours)
