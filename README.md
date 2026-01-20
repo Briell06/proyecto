@@ -1,6 +1,8 @@
 # Sistema de Gestión de Aeropuerto
 
-Sistema Django para la coordinación de operaciones de vuelo, asignación de recursos y programación de personal. Implementa detección automática de conflictos, validación de restricciones operacionales y reglas de negocio aeroportuarias.
+Sistema Django para la coordinación de operaciones de vuelo, asignación de recursos y programación de personal.
+Implementa detección automática de conflictos, validación de restricciones operacionales y reglas de negocio
+aeroportuarias.
 
 ## Características
 
@@ -22,6 +24,22 @@ Sistema Django para la coordinación de operaciones de vuelo, asignación de rec
 
 ## Instalación
 
+### 0. Configuración inicial
+
+(si desea correr el proyecto de esta forma "forma local" debería configurar el archivo settings.py y cambiar la variable
+DEBUG a True)
+
+```python
+# old
+DEBUG = False
+
+# new
+DEBUG = True
+```
+
+si no es asi puede visitar la pagina online accediendo
+a [https://briell.pythonanywhere.com/](https://briell.pythonanywhere.com/)
+
 ### 1. Clonar repositorio
 
 ```bash
@@ -34,21 +52,27 @@ cd "proyecto"
 ### Windows
 
 ```bash
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+#crear el entorno virtual
+python -m venv .venv
 
-uv sync
-
+# Activar el entorno virtual
 .venv\Scripts\activate
+
+# instalar dependencias
+pip install -r requirements.txt
 ```
 
 ### Linux/macOS
 
 ```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
+# crear el entorno virtual
+python3 -m venv .venv
 
-uv sync
-
+# activar el entorno virtual
 source .venv/bin/activate
+
+# instalar dependencias
+pip install -r requirements.txt
 ```
 
 ### 3. Configurar base de datos
@@ -60,14 +84,14 @@ source .venv/bin/activate
 python manage.py makemigrations
 
 # Aplicar migraciones
-python manage.py migrate
+python3 manage.py migrate
 ```
 
 #### Linux/macOS
 
 ```bash
 # Crear migraciones
-python3 manage.py makemigrations
+python manage.py makemigrations
 
 # Aplicar migraciones
 python3 manage.py migrate
@@ -108,34 +132,29 @@ Acceder a [http://localhost:8000/](http://localhost:8000/)
 ### Flujo de trabajo
 
 1. **Crear recursos** (en orden):
-
-   - Pistas: `/pistas/crear/`
-   - Puertas: `/puertas/crear/`
-   - Personal: `/personal/crear/` (pilotos y copilotos)
-   - Aeronaves: `/aeronaves/crear/`
+    - Pistas: `/pistas/crear/`
+    - Puertas: `/puertas/crear/`
+    - Personal: `/personal/crear/` (pilotos y copilotos)
+    - Aeronaves: `/aeronaves/crear/`
 
 2. **Configurar restricciones** (opcional): `/restricciones/crear/`
-
-   - Define co-requisitos entre recursos que deben usarse juntos
-   - Define exclusiones mutuas entre recursos incompatibles
-   - Consulta ejemplos en la sección "Reglas de negocio"
+    - Define correquisitos entre recursos que deben usarse juntos
+    - Define exclusiones mutuas entre recursos incompatibles
+    - Consulta ejemplos en la sección "Reglas de negocio"
 
 3. **Crear vuelo**: `/vuelos/crear/`
-
-   - Asignar pista, puerta, aeronave, piloto y copilotos
-   - El sistema valida disponibilidad y restricciones automáticamente
+    - Asignar pista, puerta, aeronave, piloto y copilotos
+    - El sistema valida la disponibilidad y restricciones automáticamente
 
 4. **Buscar horario disponible**: `/buscar-horario/`
-
-   - Selecciona recursos y duración del vuelo
-   - El sistema encuentra el próximo slot disponible automáticamente
+    - Selecciona recursos y duración del vuelo
+    - El sistema encuentra el próximo slot disponible automáticamente
 
 5. **Consultar disponibilidad**: `/disponibilidad/`
-
-   - Verificar recursos libres en un rango de tiempo específico
+    - Verificar recursos libres en un rango de tiempo específico
 
 6. **Administración**: `/admin/`
-   - Gestión avanzada de todos los recursos
+    - Gestión avanzada de todos los recursos
 
 ### Ejemplo de vuelo
 
@@ -154,7 +173,8 @@ Seleccionar pista, puerta, aeronave, piloto y copilotos (mínimo 1 para vuelo de
 
 ### Sistema de Restricciones de Recursos
 
-El sistema implementa dos tipos de restricciones que validan automáticamente las combinaciones de recursos en cada vuelo:
+El sistema implementa dos tipos de restricciones que validan automáticamente las combinaciones de recursos en cada
+vuelo:
 
 #### 1. Co-requisitos (Inclusión Obligatoria)
 
@@ -162,13 +182,16 @@ Cuando se usa un recurso primario, **DEBE** incluirse un recurso complementario 
 
 **Ejemplos implementables en el dominio de aeropuerto:**
 
-- **Pista grande requiere puerta grande**: Si se asigna la Pista 01L (para aviones grandes como Boeing 747), DEBE asignarse una puerta grande (A1-A5) capaz de recibir aviones de esa categoría.
-  
-- **Aeronave internacional requiere personal de aduana**: Si se usa una aeronave configurada para vuelos internacionales, DEBE incluirse personal de aduana en el vuelo.
+- **Pista grande requiere puerta grande**: Si se asigna la Pista 01L (para aviones grandes como Boeing 747), DEBE
+  asignarse una puerta grande (A1-A5) capaz de recibir aviones de esa categoría.
+- **Aeronave internacional requiere personal de aduana**: Si se usa una aeronave configurada para vuelos
+  internacionales, DEBE incluirse personal de aduana en el vuelo.
 
-- **Piloto senior requiere aeronave certificada**: Si se asigna un piloto certificado en aeronaves especiales (ej: Boeing 787), DEBE usarse una aeronave de ese tipo específico.
+- **Piloto senior requiere aeronave certificada**: Si se asigna un piloto certificado en aeronaves especiales (ej:
+  Boeing 787), DEBE usarse una aeronave de ese tipo específico.
 
 **Cómo crear un co-requisito:**
+
 1. Ve a `/restricciones/crear/`
 2. Selecciona "Co-requisito" como tipo
 3. Define el recurso primario (el que dispara la regla)
@@ -180,13 +203,17 @@ Cuando se usa un recurso primario, **NO PUEDE** usarse un recurso específico en
 
 **Ejemplos implementables en el dominio de aeropuerto:**
 
-- **Pistas paralelas en uso simultáneo**: Si se asigna la Pista 01L, NO PUEDE usarse la Pista 01R (pistas paralelas que no pueden operar simultáneamente por seguridad).
+- **Pistas paralelas en uso simultáneo**: Si se asigna la Pista 01L, NO PUEDE usarse la Pista 01R (pistas paralelas que
+  no pueden operar simultáneamente por seguridad).
 
-- **Puertas adyacentes**: Si un vuelo usa la Puerta A1, NO PUEDE usar la Puerta A2 (puertas adyacentes reservadas para aviones grandes que requieren espacio extra).
+- **Puertas adyacentes**: Si un vuelo usa la Puerta A1, NO PUEDE usar la Puerta A2 (puertas adyacentes reservadas para
+  aviones grandes que requieren espacio extra).
 
-- **Incompatibilidad de aeronave-puerta**: Si se asigna un Boeing 747 (avión grande), NO PUEDE usarse la Puerta C1 (puerta pequeña para aviones regionales).
+- **Incompatibilidad de aeronave-puerta**: Si se asigna un Boeing 747 (avión grande), NO PUEDE usarse la Puerta C1 (
+  puerta pequeña para aviones regionales).
 
 **Cómo crear una exclusión mutua:**
+
 1. Ve a `/restricciones/crear/`
 2. Selecciona "Exclusión Mutua" como tipo
 3. Define el recurso primario
@@ -195,17 +222,20 @@ Cuando se usa un recurso primario, **NO PUEDE** usarse un recurso específico en
 #### Validación Automática
 
 Todas las restricciones activas se validan automáticamente cuando:
+
 - Se crea un nuevo vuelo
 - Se actualiza un vuelo existente
 - Se modifican los recursos asignados
 
-Si se viola una restricción, el sistema mostrará un mensaje de error claro indicando qué regla se violó y qué recurso falta o sobra.
+Si se viola una restricción, el sistema mostrará un mensaje de error claro indicando qué regla se violó y qué recurso
+falta o sobra.
 
 ### Búsqueda Inteligente de Horarios ("Buscar Hueco")
 
 Función avanzada que encuentra automáticamente el próximo horario disponible para un vuelo.
 
 **Cómo funciona:**
+
 1. Especificas los recursos que necesitas (pista, puerta, aeronave, piloto)
 2. Defines la duración del vuelo en horas
 3. El sistema busca en los próximos 30 días
@@ -257,7 +287,7 @@ proyecto v2/
 - **Aircraft**: Aeronaves de la flota
 - **Personnel**: Pilotos y copilotos
 - **Flight**: Vuelos programados
-- **ResourceConstraint**: Restricciones de recursos (Co-requisitos y Exclusión Mutua)
+- **ResourceConstraint**: Restricciones de recursos (Correquisitos y Exclusión Mutua)
 
 ## Endpoints
 
