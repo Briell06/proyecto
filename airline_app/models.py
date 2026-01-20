@@ -505,42 +505,46 @@ class Flight(models.Model):
         # Checkea la disponibilidad de los recursos
         exclude_id = self.pk if self.pk else None
 
-        if self.runway and not self.runway.is_available(
-            self.departure_time, self.arrival_time, exclude_id
-        ):
-            errors["runway"] = ValidationError(
-                "La pista seleccionada no está disponible durante el tiempo seleccionado.",
-                code="runway_conflict",
-            )
+        # Solo podemos chequear disponibilidad/restricciones si tenemos un rango de tiempo válido.
+        # Si no, Django terminará haciendo queries con None (ej: departure_time__lt=None) y levantará
+        # "Cannot use None as a query value".
+        if self.departure_time and self.arrival_time:
+            if self.runway and not self.runway.is_available(
+                self.departure_time, self.arrival_time, exclude_id
+            ):
+                errors["runway"] = ValidationError(
+                    "La pista seleccionada no está disponible durante el tiempo seleccionado.",
+                    code="runway_conflict",
+                )
 
-        if self.gate and not self.gate.is_available(
-            self.departure_time, self.arrival_time, exclude_id
-        ):
-            errors["gate"] = ValidationError(
-                "La puerta seleccionada no está disponible durante el tiempo seleccionado.",
-                code="gate_conflict",
-            )
+            if self.gate and not self.gate.is_available(
+                self.departure_time, self.arrival_time, exclude_id
+            ):
+                errors["gate"] = ValidationError(
+                    "La puerta seleccionada no está disponible durante el tiempo seleccionado.",
+                    code="gate_conflict",
+                )
 
-        if self.aircraft and not self.aircraft.is_available(
-            self.departure_time, self.arrival_time, exclude_id
-        ):
-            errors["aircraft"] = ValidationError(
-                "El avión seleccionado no está disponible (requiere un mantenimiento de 24 horas entre vuelos).",
-                code="aircraft_conflict",
-            )
+            if self.aircraft and not self.aircraft.is_available(
+                self.departure_time, self.arrival_time, exclude_id
+            ):
+                errors["aircraft"] = ValidationError(
+                    "El avión seleccionado no está disponible (requiere un mantenimiento de 24 horas entre vuelos).",
+                    code="aircraft_conflict",
+                )
 
-        if self.pilot and not self.pilot.is_available(
-            self.departure_time, self.arrival_time, exclude_id
-        ):
-            errors["pilot"] = ValidationError(
-                "El piloto seleccionado no está disponible durante el tiempo seleccionado.",
-                code="pilot_conflict",
-            )
+            if self.pilot and not self.pilot.is_available(
+                self.departure_time, self.arrival_time, exclude_id
+            ):
+                errors["pilot"] = ValidationError(
+                    "El piloto seleccionado no está disponible durante el tiempo seleccionado.",
+                    code="pilot_conflict",
+                )
 
-        # Valida restricciones de recursos
-        constraint_errors = self.validate_resource_constraints()
-        if constraint_errors:
-            errors["__all__"] = constraint_errors
+            # Valida restricciones de recursos
+            constraint_errors = self.validate_resource_constraints()
+            if constraint_errors:
+                errors["__all__"] = constraint_errors
 
         if errors:
             raise ValidationError(errors)
@@ -558,6 +562,10 @@ class Flight(models.Model):
             "runway": self.runway.id if self.runway else None,
             "gate": self.gate.id if self.gate else None,
             "aircraft": self.aircraft.id if self.aircraft else None,
+            # ResourceConstraint uses 'personnel' as the resource type, but Flight stores
+            # the assigned person in the 'pilot' FK.
+            "personnel": self.pilot.id if self.pilot else None,
+            # Backwards/defensive alias (in case any existing code/constraints used 'pilot').
             "pilot": self.pilot.id if self.pilot else None,
         }
 
@@ -709,6 +717,9 @@ class Flight(models.Model):
                     "runway": runway_id,
                     "gate": gate_id,
                     "aircraft": aircraft_id,
+                    # ResourceConstraint uses 'personnel' as the resource type.
+                    "personnel": pilot_id,
+                    # Backwards/defensive alias.
                     "pilot": pilot_id,
                 }
 

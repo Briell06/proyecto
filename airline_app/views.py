@@ -379,8 +379,12 @@ class FlightCreateView(CreateView):
             messages.success(self.request, "Vuelo creado exitosamente.")
             return redirect(self.success_url)
         except ValidationError as e:
-            for field, errors in e.message_dict.items():
-                for error in errors:
+            if hasattr(e, "error_dict"):
+                for field, errors in e.message_dict.items():
+                    for error in errors:
+                        messages.error(self.request, error)
+            else:
+                for error in e.messages:
                     messages.error(self.request, error)
             return self.form_invalid(form)
 
@@ -401,8 +405,12 @@ class FlightUpdateView(UpdateView):
             messages.success(self.request, "Vuelo actualizado exitosamente.")
             return redirect(self.success_url)
         except ValidationError as e:
-            for field, errors in e.message_dict.items():
-                for error in errors:
+            if hasattr(e, "error_dict"):
+                for field, errors in e.message_dict.items():
+                    for error in errors:
+                        messages.error(self.request, error)
+            else:
+                for error in e.messages:
                     messages.error(self.request, error)
             return self.form_invalid(form)
 
