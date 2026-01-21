@@ -19,8 +19,7 @@ aeroportuarias.
 
 - Django 5.2.7
 - Python 3.8+
-- SQLite3
-- django-mathfilters 1.0.0
+- MySQL
 
 ## Instalación
 
