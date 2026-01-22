@@ -341,10 +341,10 @@ class Aircraft(models.Model):
 
     def clean(self):
         errors = {}
-        if self.capacity == 0 or self.capacity > 700:
+        if self.capacity < 10 or self.capacity > 800:
             errors["capacity"] = [
                 ValidationError(
-                    "La capacidad de pasajeros debe ser mayor a 0 y menor a 700."
+                    "La capacidad de pasajeros debe ser mayor a 10 y menor a 800."
                 )
             ]
 

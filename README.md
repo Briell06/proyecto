@@ -131,29 +131,29 @@ Acceder a [http://localhost:8000/](http://localhost:8000/)
 ### Flujo de trabajo
 
 1. **Crear recursos** (en orden):
-    - Pistas: `/pistas/crear/`
-    - Puertas: `/puertas/crear/`
-    - Personal: `/personal/crear/` (pilotos y copilotos)
-    - Aeronaves: `/aeronaves/crear/`
+   - Pistas: `/pistas/crear/`
+   - Puertas: `/puertas/crear/`
+   - Personal: `/personal/crear/` (pilotos y copilotos)
+   - Aeronaves: `/aeronaves/crear/`
 
 2. **Configurar restricciones** (opcional): `/restricciones/crear/`
-    - Define correquisitos entre recursos que deben usarse juntos
-    - Define exclusiones mutuas entre recursos incompatibles
-    - Consulta ejemplos en la sección "Reglas de negocio"
+   - Define correquisitos entre recursos que deben usarse juntos
+   - Define exclusiones mutuas entre recursos incompatibles
+   - Consulta ejemplos en la sección "Reglas de negocio"
 
 3. **Crear vuelo**: `/vuelos/crear/`
-    - Asignar pista, puerta, aeronave, piloto y copilotos
-    - El sistema valida la disponibilidad y restricciones automáticamente
+   - Asignar pista, puerta, aeronave, piloto y copilotos
+   - El sistema valida la disponibilidad y restricciones automáticamente
 
 4. **Buscar horario disponible**: `/buscar-horario/`
-    - Selecciona recursos y duración del vuelo
-    - El sistema encuentra el próximo slot disponible automáticamente
+   - Selecciona recursos y duración del vuelo
+   - El sistema encuentra el próximo slot disponible automáticamente
 
 5. **Consultar disponibilidad**: `/disponibilidad/`
-    - Verificar recursos libres en un rango de tiempo específico
+   - Verificar recursos libres en un rango de tiempo específico
 
 6. **Administración**: `/admin/`
-    - Gestión avanzada de todos los recursos
+   - Gestión avanzada de todos los recursos
 
 ### Ejemplo de vuelo
 
@@ -314,3 +314,4 @@ Archivo principal: `config/settings.py`
 Proyecto desarrollado para la Universidad de la Habana en la carrera de Ciencias de la Computación.
 
 © Briell Quintana Hernández 2025
+

@@ -135,6 +135,7 @@ class FlightAdmin(admin.ModelAdmin):
         except Exception as e:
             self.message_user(request, f"Warning: {str(e)}", level="warning")
 
+
 @admin.register(ResourceConstraint)
 class ResourceConstraintAdmin(admin.ModelAdmin):
     """Interfaz de administración para el modelo de Restricciones de Recursos."""
@@ -149,7 +150,13 @@ class ResourceConstraintAdmin(admin.ModelAdmin):
         "is_active",
         "created_at",
     ]
-    list_filter = ["constraint_type", "is_active", "primary_resource_type", "related_resource_type", "created_at"]
+    list_filter = [
+        "constraint_type",
+        "is_active",
+        "primary_resource_type",
+        "related_resource_type",
+        "created_at",
+    ]
     search_fields = ["name", "description"]
     ordering = ["name"]
     fieldsets = (
@@ -166,3 +173,4 @@ class ResourceConstraintAdmin(admin.ModelAdmin):
             {"fields": ("related_resource_type", "related_resource_id")},
         ),
     )
+

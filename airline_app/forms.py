@@ -367,6 +367,7 @@ class ResourceAvailabilityForm(forms.Form):
 
         return cleaned_data
 
+
 class ResourceConstraintForm(forms.ModelForm):
     """Form for creating and editing resource constraints."""
 
@@ -475,31 +476,35 @@ class ResourceConstraintForm(forms.ModelForm):
 
             # Pre-seleccionar el recurso primario
             if primary_type == "runway":
-                self.fields["primary_runway"].initial = self.instance.primary_resource_id
+                self.fields["primary_runway"].initial = (
+                    self.instance.primary_resource_id
+                )
             elif primary_type == "gate":
                 self.fields["primary_gate"].initial = self.instance.primary_resource_id
             elif primary_type == "aircraft":
-                self.fields[
-                    "primary_aircraft"
-                ].initial = self.instance.primary_resource_id
+                self.fields["primary_aircraft"].initial = (
+                    self.instance.primary_resource_id
+                )
             elif primary_type == "personnel":
-                self.fields[
-                    "primary_personnel"
-                ].initial = self.instance.primary_resource_id
+                self.fields["primary_personnel"].initial = (
+                    self.instance.primary_resource_id
+                )
 
             # Pre-seleccionar el recurso relacionado
             if related_type == "runway":
-                self.fields["related_runway"].initial = self.instance.related_resource_id
+                self.fields["related_runway"].initial = (
+                    self.instance.related_resource_id
+                )
             elif related_type == "gate":
                 self.fields["related_gate"].initial = self.instance.related_resource_id
             elif related_type == "aircraft":
-                self.fields[
-                    "related_aircraft"
-                ].initial = self.instance.related_resource_id
+                self.fields["related_aircraft"].initial = (
+                    self.instance.related_resource_id
+                )
             elif related_type == "personnel":
-                self.fields[
-                    "related_personnel"
-                ].initial = self.instance.related_resource_id
+                self.fields["related_personnel"].initial = (
+                    self.instance.related_resource_id
+                )
 
     def clean(self):
         """Validate that resources exist and constraint makes sense."""
